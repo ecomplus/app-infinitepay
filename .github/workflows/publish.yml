@@ -1,0 +1,46 @@
+name: Publish
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'assets/application.json'
+      - 'ecomplus-market.json'
+      - 'functions/public/description.md'
+      - 'functions/public/icon.png'
+      - 'scripts/_constants.js'
+      - 'scripts/market-publication.js'
+
+jobs:
+  pulish:
+    name: Publish app to E-Com Plus Market
+    runs-on: ubuntu-latest
+    if: github.repository != 'ecomplus/application-starter'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12.x'
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install root dependencies
+        run: npm ci --only=production
+
+      - name: Run publish script
+        env:
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          MARKET_TOKEN: ${{ secrets.MARKET_TOKEN }}
+        run: "npm run publish:market"

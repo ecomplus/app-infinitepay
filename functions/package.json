@@ -1,0 +1,28 @@
+{
+  "name": "functions",
+  "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "lint": "eslint .",
+    "serve": "firebase serve --only functions",
+    "shell": "firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "10"
+  },
+  "dependencies": {
+    "@ecomplus/application-sdk": "^22.0.0-firestore.1.14.0",
+    "@google-cloud/firestore": "^4.8.1",
+    "express": "^4.17.1",
+    "firebase-admin": "^9.4.2",
+    "firebase-functions": "^3.13.0"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "firebase-functions-test": "^0.2.3"
+  },
+  "private": true
+}

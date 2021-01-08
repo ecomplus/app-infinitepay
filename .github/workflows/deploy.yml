@@ -1,0 +1,130 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'functions/**'
+      - 'scripts/_constants.js'
+      - 'scripts/firebase-deploy.js'
+      - '*.json'
+
+jobs:
+  deploy:
+    name: Deploy to Firebase
+    runs-on: ubuntu-latest
+    if: |
+      github.event.head_commit.message != 'Initial commit' &&
+      !contains(github.event.head_commit.message, '[skip ci]')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '10.x'
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install root dependencies
+        run: npm ci --only=production
+
+      - name: Install functions dependencies
+        run: cd functions && npm ci --only=production --no-optional && cd ..
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run deploy
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          SERVER_OPERATOR_TOKEN: ${{ secrets.SERVER_OPERATOR_TOKEN }}
+        run: npm run deploy
+
+  update-app-json:
+    name: Update application and publish
+    runs-on: ubuntu-latest
+    needs: deploy
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Write README with base URI
+        env:
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+        run: |
+          echo "App base URI: https://us-central1-$FIREBASE_PROJECT_ID.cloudfunctions.net/app/" \
+            > ./assets/README
+
+      - name: Run Wget and write to JSON file
+        env:
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+        run: |
+          wget -O ./assets/application.json \
+            https://us-central1-$FIREBASE_PROJECT_ID.cloudfunctions.net/app/
+
+      - name: Config Git and check diff
+        run: |
+          git config --local user.email 'action@github.com'
+          git config --local user.name 'GitHub Action'
+          git add ./assets/
+          (git diff-index --quiet HEAD && echo "::set-output name=diff::0") || echo "::set-output name=diff::1"
+        id: git_diff
+
+      - name: Commit local file changes
+        if: steps.git_diff.outputs.diff == 1
+        run: |
+          git commit -m 'chore(assets): update application body [skip ci]'
+
+      - name: Push changes
+        if: steps.git_diff.outputs.diff == 1
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: master
+
+      - name: Check stable package version
+        env:
+          APP_CHANGED: ${{ steps.git_diff.outputs.diff }}
+        run: |
+          CAN_PUBLISH=$(node -p "!(/-/.test(require('./package.json').version)) && process.env.APP_CHANGED")
+          echo "::set-output name=publish::$CAN_PUBLISH"
+        id: pkg_version
+
+      - name: Setup Node
+        if: steps.pkg_version.outputs.publish == 1
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12.x'
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Cache dependencies
+        if: steps.pkg_version.outputs.publish == 1
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        if: steps.pkg_version.outputs.publish == 1
+        run: npm ci --only=production
+
+      - name: Run publish script
+        if: steps.pkg_version.outputs.publish == 1
+        env:
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          MARKET_TOKEN: ${{ secrets.MARKET_TOKEN }}
+        run: "npm run publish:market"
+        continue-on-error: true

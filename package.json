@@ -1,0 +1,54 @@
+{
+  "name": "@ecomplus/application-starter",
+  "private": true,
+  "version": "1.0.0-starter.16",
+  "description": "Boilerplate for E-Com Plus apps with Firebase Cloud Functions",
+  "main": "functions/index.js",
+  "scripts": {
+    "serve": "echo 'Firebase runs with legacy Node.js 8; Use `npm run deploy` instead.'",
+    "deploy": "NODE_ENV=production node ./scripts/firebase-deploy.js",
+    "release": "standard-version",
+    "release:starter": "standard-version --prerelease starter",
+    "publish:market": "node ./scripts/market-publication.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ecomplus/application-starter.git"
+  },
+  "keywords": [
+    "ecomplus",
+    "store-api",
+    "ecomplus-app",
+    "boilerplate",
+    "app-boilerplate",
+    "ecommerce-apps",
+    "firebase-functions",
+    "firestore",
+    "authentication-backend",
+    "integration-flow",
+    "express-app"
+  ],
+  "author": "E-Com Club <ti@e-com.club>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ecomplus/application-starter/issues"
+  },
+  "homepage": "https://github.com/ecomplus/application-starter#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "firebase-tools": "^9.1.1",
+    "uglify-js": "^3.12.4"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^11.0.0",
+    "@commitlint/config-conventional": "^11.0.0",
+    "husky": "^4.3.7",
+    "standard": "^16.0.3",
+    "standard-version": "^9.1.0"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  }
+}
