@@ -1,7 +1,7 @@
 {
   "app": {
-    "title": "",
-    "short_description": "",
-    "category": "tools"
+    "title": "InfinitePay (BETA)",
+    "short_description": "Pagamento via cartão de crédito com link de pagamentos InfinitePay",
+    "category": "sales"
   }
 }
