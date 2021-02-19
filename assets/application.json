@@ -1,11 +1,20 @@
 {
-  "app_id": 9000,
-  "title": "My Awesome E-Com Plus App",
-  "slug": "my-awesome-ecom-plus-app",
+  "app_id": 110373,
+  "title": "InfinitePay",
+  "slug": "infinitepay",
   "type": "external",
   "state": "active",
   "authentication": true,
-  "modules": {},
+  "modules": {
+    "list_payments": {
+      "enabled": true,
+      "endpoint": "https://us-central1-ecom-infinitepay.cloudfunctions.net/app/ecom/modules/list-payments"
+    },
+    "create_transaction": {
+      "enabled": true,
+      "endpoint": "https://us-central1-ecom-infinitepay.cloudfunctions.net/app/ecom/modules/create-transaction"
+    }
+  },
   "auth_scope": {
     "stores/me": [
       "GET"
@@ -17,15 +26,37 @@
     "brands": [],
     "categories": [],
     "customers": [],
-    "orders": [],
+    "orders": [
+      "GET"
+    ],
     "carts": [],
     "orders/fulfillments": [],
-    "orders/payments_history": [],
+    "orders/payments_history": [
+      "POST"
+    ],
     "products/quantity": [],
     "products/variations/quantity": [],
     "products/price": [],
     "products/variations/price": []
   },
-  "auth_callback_uri": "https://us-central1-ecom-app-boilerplate.cloudfunctions.net/app/ecom/auth-callback",
+  "admin_settings": {
+    "infinitepay_username": {
+      "schema": {
+        "type": "string",
+        "maxLength": 255,
+        "title": "Seu usuário (@) para link de pagamento InfinitePay"
+      },
+      "hide": false
+    },
+    "infinitepay_api_key": {
+      "schema": {
+        "type": "string",
+        "maxLength": 255,
+        "title": "Chave de API InfinitePay"
+      },
+      "hide": true
+    }
+  },
+  "auth_callback_uri": "https://us-central1-ecom-infinitepay.cloudfunctions.net/app/ecom/auth-callback",
   "version": "1.0.0"
 }
