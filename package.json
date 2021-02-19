@@ -1,5 +1,5 @@
 {
-  "name": "@ecomplus/application-starter",
+  "name": "@ecomplus/app-infinitepay",
   "private": true,
   "version": "1.0.0-starter.16",
   "description": "Boilerplate for E-Com Plus apps with Firebase Cloud Functions",
