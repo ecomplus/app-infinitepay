@@ -31,7 +31,7 @@ exports.post = ({ appSdk }, req, res) => {
     label: 'Cartão de crédito - InfinitePay',
     icon: `${baseUri}/infinitepay.png`,
     payment_method: {
-      code: 'credit_card',
+      code: 'balance_on_intermediary',
       name: 'Cartão de crédito via link InfinitePay'
     },
     intermediator: {
