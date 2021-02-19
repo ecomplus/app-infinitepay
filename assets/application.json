@@ -40,11 +40,12 @@
     "products/variations/price": []
   },
   "admin_settings": {
-    "infinitepay_username": {
+    "infinitepay_user": {
       "schema": {
         "type": "string",
         "maxLength": 255,
-        "title": "Seu usuário (@) para link de pagamento InfinitePay"
+        "title": "Username na InfinitePay",
+        "description": "Seu usuário (@) para link de pagamento"
       },
       "hide": false
     },
@@ -55,6 +56,142 @@
         "title": "Chave de API InfinitePay"
       },
       "hide": true
+    },
+    "discount": {
+      "schema": {
+        "type": "object",
+        "required": [
+          "value"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "apply_at": {
+            "type": "string",
+            "enum": [
+              "total",
+              "subtotal",
+              "freight"
+            ],
+            "default": "subtotal",
+            "title": "Aplicar desconto em",
+            "description": "Em qual valor o desconto deverá ser aplicado no checkout"
+          },
+          "cumulative_discount": {
+            "type": "boolean",
+            "default": true,
+            "title": "Desconto cumulativo",
+            "description": "Se a promoção poderá ser aplicada junto a cupons e campanhas de desconto"
+          },
+          "min_amount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 999999999,
+            "title": "Pedido mínimo",
+            "description": "Montante mínimo para aplicar o desconto"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "percentage",
+              "fixed"
+            ],
+            "default": "percentage",
+            "title": "Tipo de desconto",
+            "description": "Desconto com valor percentual ou fixo"
+          },
+          "value": {
+            "type": "number",
+            "minimum": -99999999,
+            "maximum": 99999999,
+            "title": "Valor do desconto",
+            "description": "Valor percentual ou fixo a ser descontado, dependendo to tipo configurado"
+          }
+        },
+        "title": "Desconto",
+        "description": "Desconto a ser aplicado para pagamentos via Pix"
+      },
+      "hide": false
+    },
+    "installments": {
+      "schema": {
+        "type": "object",
+        "required": [
+          "max_number"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "min_installment": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 99999999,
+            "default": 5,
+            "title": "Parcela mínima",
+            "description": "Valor mínimo da parcela"
+          },
+          "max_number": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 999,
+            "title": "Máximo de parcelas",
+            "description": "Número máximo de parcelas"
+          },
+          "monthly_interest": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 9999,
+            "default": 0,
+            "title": "Juros mensais",
+            "description": "Taxa de juros mensal, zero para parcelamento sem juros"
+          },
+          "max_interest_free": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 999,
+            "title": "Parcelas sem juros",
+            "description": "Mesclar parcelamento com e sem juros (ex.: até 3x sem juros e 12x com juros)"
+          },
+          "interest_free_min_amount": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 999999999,
+            "title": "Mínimo sem juros",
+            "description": "Montante mínimo para parcelamento sem juros"
+          }
+        },
+        "title": "Parcelamento",
+        "description": "Opções de parcelamento no cartão via InfinitePay"
+      },
+      "hide": false
+    },
+    "gateway_options": {
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 50,
+            "title": "Rótulo",
+            "description": "Nome da forma de pagamento exibido para os clientes",
+            "default": "Cartão de crédito - InfinitePay"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 1000,
+            "title": "Descrição",
+            "description": "Texto auxiliar sobre a forma de pagamento, pode conter tags HTML"
+          },
+          "icon": {
+            "type": "string",
+            "maxLength": 255,
+            "format": "uri",
+            "title": "Ícone",
+            "description": "Ícone customizado para a forma de pagamento, URL da imagem"
+          }
+        },
+        "title": "Opções da forma de pagamento"
+      },
+      "hide": false
     }
   },
   "auth_callback_uri": "https://us-central1-ecom-infinitepay.cloudfunctions.net/app/ecom/auth-callback",
