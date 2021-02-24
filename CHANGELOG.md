@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.1](https://github.com/ecomplus/application-starter/compare/v1.0.0...v1.0.1) (2021-02-24)
+
+
+### Bug Fixes
+
+* **infinitepay-callback:** ensure debugging unexpected rejections ([23dd671](https://github.com/ecomplus/application-starter/commit/23dd6718c43642d6dc9ae91a83700b1338883c21))
+
 ## 1.0.0 (2021-02-24)
 
 
