@@ -71,8 +71,10 @@ exports.post = ({ appSdk }, req, res) => {
               err.status = status
               err.response = JSON.stringify(response.data)
               console.error(err)
-            } else if (error.appWithoutAuth) {
-              status = 204
+            } else {
+              if (error.appWithoutAuth) {
+                status = 204
+              }
               console.error(error)
             }
             if (!res.headersSent) {
