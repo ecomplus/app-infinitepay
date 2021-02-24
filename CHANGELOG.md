@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 1.0.0 (2021-02-24)
+
+
+### Features
+
+* **create-transaction:** basic setup for list payments and transaction with infinitepay payment link ([dd65727](https://github.com/ecomplus/application-starter/commit/dd657271409f651df92754faf9f394baee0615b0))
+* **ecom-config:** add discount, installments and gateway options to admin settings ([8f210a2](https://github.com/ecomplus/application-starter/commit/8f210a24eb2ecfc96b3bede56459f15dec3170b5))
+* **ecom-config:** setup app title, auth scope, admin settings and modules ([b6520af](https://github.com/ecomplus/application-starter/commit/b6520af7bbfb4f9d1623ae4c90f4b59fe4c25e22))
+* **infinitepay-callback:** setup callback url and handle webhooks ([d6fcb70](https://github.com/ecomplus/application-starter/commit/d6fcb7074696e8d22e7e85755d277a1af8aba25a))
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([#1](https://github.com/ecomplus/application-starter/issues/1)) ([782d6dd](https://github.com/ecomplus/application-starter/commit/782d6dd5666d24557f02ecf129ff7297b5a42fa4))
+* **infinitepay-callback:** prevent being flood unecessarily, debug unexpected metadata ([0c6b9a8](https://github.com/ecomplus/application-starter/commit/0c6b9a89a7eebba98181af5ca67354c5a11b13e4))
+* **list-payments:** set 'balance_on_intermediary' payment method code (no js client) ([656fc80](https://github.com/ecomplus/application-starter/commit/656fc80f404d5a25d1b036a3b389e46fd4614208))
+
 ## [1.0.0-starter.16](https://github.com/ecomplus/application-starter/compare/v1.0.0-starter.15...v1.0.0-starter.16) (2020-11-05)
 
 
