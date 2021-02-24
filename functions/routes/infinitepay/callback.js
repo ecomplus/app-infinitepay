@@ -60,23 +60,34 @@ exports.post = ({ appSdk }, req, res) => {
           .then(() => {
             res.sendStatus(200)
           })
+
           .catch(error => {
             const { response, config } = error
+            let status
             if (response) {
-              const { status, data } = response
+              status = response.status
               const err = new Error(`#${storeId} InfinitePay callback error ${status}`)
               err.url = config && config.url
               err.status = status
-              err.response = JSON.stringify(data)
-              return console.error(err)
+              err.response = JSON.stringify(response.data)
+              console.error(err)
+            } else if (error.appWithoutAuth) {
+              status = 204
+              console.error(error)
             }
-            console.error(error)
+            if (!res.headersSent) {
+              res.sendStatus(status || 500)
+            }
           })
       }
     }
+
+    const msg = `Unexptected or undefined metadata '${JSON.stringify(metadata)}'`
+    console.log(`> Callback ignored: ${msg}`)
+    return res.status(203).send(msg)
   }
 
-  res.sendStatus(410)
+  res.sendStatus(403)
 }
 
 const parseStatus = infinitepayStatus => {
