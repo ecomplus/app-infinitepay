@@ -13,17 +13,17 @@
     "node": "12"
   },
   "dependencies": {
-    "@ecomplus/application-sdk": "^22.0.0-firestore.1.14.11",
-    "@google-cloud/firestore": "^4.12.2",
+    "@ecomplus/application-sdk": "^22.0.0-firestore.1.15.4",
+    "@google-cloud/firestore": "^4.14.0",
     "axios": "^0.21.1",
     "express": "^4.17.1",
-    "firebase-admin": "^9.9.0",
+    "firebase-admin": "^9.11.0",
     "firebase-functions": "^3.14.1"
   },
   "devDependencies": {
     "eslint": "^6.8.0",
     "eslint-plugin-promise": "^4.3.1",
-    "firebase-functions-test": "^0.2.3"
+    "firebase-functions-test": "^0.3.0"
   },
   "private": true
 }
