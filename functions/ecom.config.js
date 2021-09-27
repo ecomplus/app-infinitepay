@@ -7,7 +7,7 @@
 
 const app = {
   app_id: 110373,
-  title: 'InfinitePay',
+  title: 'InfinitePay Link',
   slug: 'infinitepay',
   type: 'external',
   state: 'active',
