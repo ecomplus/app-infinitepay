@@ -147,12 +147,21 @@ const app = {
       },
       hide: false
     },
-    infinitepay_api_key: {
-      schema: {
+    client_id: {
+      schema:{
         type: 'string',
         maxLength: 255,
-        title: 'Chave de API InfinitePay',
-        description: 'Chave de API InfinitePay para link de pagamento, solicitação via e-mail: dev@infinitepay.io'
+        title: 'Client ID ',
+        description: 'Seu Client ID de acesso a API do Infinitepay, solicitação via e-mail: dev@infinitepay.io',
+      },
+      hide: true
+    },
+    client_secret: {
+      schema:{
+        type: 'string',
+        maxLength: 255,
+        title: 'Client Secret',
+        description: 'Seu Client Secret de acesso a API do Infinitepay, solicitação via e-mail: dev@infinitepay.io',
       },
       hide: true
     },
@@ -262,7 +271,7 @@ const app = {
       },
       hide: false
     },
-    infinite_link:{
+    payment_link: {
       schema: {
         type: 'object',
         additionalProperties: false,
@@ -273,17 +282,6 @@ const app = {
             title: 'Desabilitar link de pagamento',
             description: 'Desabilitar pagamento com link de pagamento'
           },
-        },
-        title: 'Link de Pagamento',
-        description: 'Opções de parcelamento no cartão via InfinitePay'
-      },
-      hide: false
-    },
-    gateway_options: {
-      schema: {
-        type: 'object',
-        additionalProperties: false,
-        properties: {
           label: {
             type: 'string',
             maxLength: 50,
@@ -305,7 +303,8 @@ const app = {
             description: 'Ícone customizado para a forma de pagamento, URL da imagem'
           }
         },
-        title: 'Opções da forma de pagamento'
+        title: 'Link de Pagamento',
+        description: 'Opções de forma de pagamento via InfinitePay'
       },
       hide: false
     },
@@ -319,24 +318,6 @@ const app = {
             default: false,
             title: 'Desabilitar checkout transparente',
             description: 'Desabilitar pagamento com cartão via checkout transparente'
-          },
-          sandbox: {
-            type: 'boolean',
-            default: false,
-            title: 'Habilitar ambiente sanbox checkout transparente',
-            description: 'Habilitar ambiente sanbox do checkout transparente'
-          },
-          client_id: {
-            type: 'string',
-            maxLength: 255,
-            title: 'Client ID ',
-            description: 'Seu Client ID de acesso a API do Infinitepay, solicitação via e-mail: dev@infinitepay.io',
-          },
-          client_secret: {
-            type: 'string',
-            maxLength: 255,
-            title: 'Client Secret',
-            description: 'Seu Client Secret de acesso a API do Infinitepay, solicitação via e-mail: dev@infinitepay.io',
           },
           label: {
             type: 'string',

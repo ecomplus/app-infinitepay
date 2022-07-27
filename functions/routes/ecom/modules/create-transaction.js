@@ -13,8 +13,8 @@ exports.post = async ({ appSdk, admin }, req, res) => {
   const { storeId } = req
   const config = Object.assign({}, application.data, application.hidden_data)
 
-  const isSandbox = config.credit_card && config.credit_card.sandbox
-  const infiniteAxios = CreateAxios(config.credit_card.client_id, config.credit_card.client_secret,
+  const isSandbox = false
+  const infiniteAxios = CreateAxios(config.client_id, config.client_secret,
     isSandbox, storeId, 'transactions')
 
   const orderId = params.order_id
@@ -197,38 +197,33 @@ exports.post = async ({ appSdk, admin }, req, res) => {
 
   // https://gist.github.com/luisbebop/ca87e04da04bcf662f732b1b6848d6ca#integration-
   // https://infinitepay.io/docs#listar-wallets
-  const infinitepayAxiosConfig = {
-    headers: {
-      Authorization: config.infinitepay_api_key
-    }
-  }
-  if (params.payment_method.code === 'balance_on_intermediary') {
-    const callbackUrl = `${baseUri}/infinitepay/callback`
-    axios.get('https://api.infinitepay.io/v1/wallets', infinitepayAxiosConfig)
-
-      .then(({ data }) => {
-        const { results } = data
-        const merchantWallets = results.filter(({ role }) => role === 'merchant')
-        if (!merchantWallets.find(wallet => wallet.callback_url === callbackUrl)) {
-          const endpoint = `https://api.infinitepay.io/v1/wallets/${merchantWallets[0].wallet_id}`
-          const data = {
-            callback_url: callbackUrl
-          }
-          return axios.patch(endpoint, data, infinitepayAxiosConfig)
+  const callbackUrl = `${baseUri}/infinitepay/callback`
+  infiniteAxios
+    .then((axios) => {
+      return axios.get('/v1/wallets')
+    })
+    .then(({ data }) => {
+      const { results } = data
+      const merchantWallets = results.filter(({ role }) => role === 'merchant')
+      if (!merchantWallets.find(wallet => wallet.callback_url === callbackUrl)) {
+        const endpoint = `/v1/wallets/${merchantWallets[0].wallet_id}`
+        const data = {
+          callback_url: callbackUrl
         }
-      })
+        return axios.patch(endpoint, data)
+      }
+    })
 
-      .catch(error => {
-        const { response, config } = error
-        if (response) {
-          const { status, data } = response
-          const err = new Error(`Failed trying to setup #${storeId} InfinitePay callbacks (${status})`)
-          err.url = config && config.url
-          err.status = status
-          err.response = JSON.stringify(data)
-          return console.error(err)
-        }
-        console.error(error)
-      })
-  }
+    .catch(error => {
+      const { response, config } = error
+      if (response) {
+        const { status, data } = response
+        const err = new Error(`Failed trying to setup #${storeId} InfinitePay callbacks (${status})`)
+        err.url = config && config.url
+        err.status = status
+        err.response = JSON.stringify(data)
+        return console.error(err)
+      }
+      console.error(error)
+    })
 }

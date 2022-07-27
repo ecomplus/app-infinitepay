@@ -1,4 +1,4 @@
-const axios = require('axios')
+const { CreateAxios } = require('../../lib/inifinitepay/create-acess')
 const getAppData = require('../../lib/store-api/get-app-data')
 
 exports.post = ({ appSdk }, req, res) => {
@@ -18,14 +18,16 @@ exports.post = ({ appSdk }, req, res) => {
           .then(config => {
             // double check InfinitePay transaction
             // https://infinitepay.io/docs#mostrar-transacao
-            return axios.get(`https://api.infinitepay.io/v1/transactions/${transactionId}`, {
-              headers: {
-                Authorization: config.infinitepay_api_key
-              }
-            }).then(({ data }) => {
-              infinitepayTransaction = data
-              return config
-            })
+            const isSandbox = false
+            const infiniteAxios = CreateAxios(config.client_id, config.client_secret,
+              isSandbox, storeId, 'transactions')
+            infiniteAxios
+              .then((axios) => {
+                return axios.get(`/v1/transactions/${transactionId}`)
+              }).then(({ data }) => {
+                infinitepayTransaction = data
+                return config
+              })
           })
 
           .then(config => {

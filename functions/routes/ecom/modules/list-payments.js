@@ -23,18 +23,14 @@ exports.post = async ({ appSdk }, req, res) => {
   if (!config.infinitepay_user && !disableLinkPayment) {
     return configError('NO_INFINITE_USER', 'Username da InfinitePay não configurado')
   }
-  if (!config.infinitepay_api_key) {
-    return configError('NO_INFINITE_KEY', 'Chave de API InfinitePay não configurada')
+  if ((!config.client_id || !config.client_secret)) {
+    return configError('NO_INFINITE_KEY', 'Client ID/Client Secrect InfinitePay não configurado')
   }
 
-  if (config.credit_card && !config.credit_card.disable && (!config.credit_card.client_id || !config.credit_card.client_secret)) {
-    return configError('NO_INFINITE_CLIENT', 'Client ID/Client Secrect InfinitePay não configurado')
-  }
-
-  const isSandbox = config.credit_card && config.credit_card.sandbox
+  const isSandbox = false
   console.log('> List Payment #', storeId, `${isSandbox ? 'isSandbox' : ''}`)
 
-  const tokenJWT = await getToken(config.credit_card.client_id, config.credit_card.client_secret,
+  const tokenJWT = await getToken(config.client_id, config.client_secret,
     isSandbox, storeId, 'card')
 
   // https://apx-mods.e-com.plus/api/v1/list_payments/response_schema.json?store_id=100
@@ -42,7 +38,7 @@ exports.post = async ({ appSdk }, req, res) => {
     payment_gateways: []
   }
 
-  const listPaymentMethods = ['infinite_link', 'credit_card']
+  const listPaymentMethods = ['payment_link', 'credit_card']
 
   const intermediator = {
     name: 'InfinitePay',
@@ -51,36 +47,25 @@ exports.post = async ({ appSdk }, req, res) => {
   }
 
   // setup payment gateway object
-  const configLinkPayment = {
-    label: 'Cartão de crédito - InfinitePay',
-    icon: `${baseUri}/infinitepay.png`,
-    payment_method: {
-      code: 'balance_on_intermediary',
-      name: 'Cartão de crédito via link InfinitePay'
-    },
-    intermediator,
-    ...config.gateway_options
-  }
-
   listPaymentMethods.forEach(paymentMethod => {
     const methodConfig = config[paymentMethod] || {}
+    console.log('Method Payment ', JSON.stringify(methodConfig))
     const isCreditCard = paymentMethod === 'credit_card'
-    const isLinkPayment = paymentMethod === 'infinite_link'
+    const isLinkPayment = paymentMethod === 'payment_link'
 
-    if (!methodConfig.disable || (isLinkPayment && !disableLinkPayment)) {
-      const label = methodConfig.label ? methodConfig.label : (isCreditCard ? 'Cartão de crédito' : 'Pix')
+    if (!methodConfig.disable) {
+      const label = methodConfig.label ? methodConfig.label : (isCreditCard ? 'Cartão de crédito' : (isLinkPayment ? 'Cartão de crédito - Link de Pagamento' : 'Pix'))
 
-      let gateway = {
+      const gateway = {
         label,
         icon: methodConfig.icon,
         text: methodConfig.text,
         payment_method: {
-          code: paymentMethod,
+          code: isLinkPayment ? 'balance_on_intermediary' : paymentMethod,
           name: `${label} - ${intermediator.name}`
         },
         intermediator
       }
-      gateway = isLinkPayment ? configLinkPayment : gateway
 
       const { installments, discount } = config
       if (installments && (isCreditCard || isLinkPayment)) {

@@ -33,7 +33,7 @@ const AxiosOrToken = (resolve, reject, clienId, clientSecret, isSandbox, storeId
       .then((resp) => {
         authenticate(resp.access_token, resolve)
         if (documentRef) {
-          documentRef.set({ ...resp, isSandbox }).catch((console.error)
+          documentRef.set({ ...resp, isSandbox }).catch(console.error)
         }
       })
       .catch(reject)
