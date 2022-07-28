@@ -147,6 +147,14 @@ const app = {
       },
       hide: false
     },
+    infinitepay_api_key: {
+      schema: {
+        type: 'string',
+        maxLength: 255,
+        title: 'Chave de API InfinitePay'
+      },
+      hide: true
+    },
     client_id: {
       schema:{
         type: 'string',
