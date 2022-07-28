@@ -18,13 +18,16 @@ exports.post = async ({ appSdk }, req, res) => {
   }
 
   const config = Object.assign({}, application.data, application.hidden_data)
-  const disableLinkPayment = config.infinite_link ? config.infinite_link.disable : false
+  const disableLinkPayment = config.payment_link ? config.payment_link.disable : false
 
   if (!config.infinitepay_user && !disableLinkPayment) {
     return configError('NO_INFINITE_USER', 'Username da InfinitePay não configurado')
   }
   if ((!config.client_id || !config.client_secret)) {
     return configError('NO_INFINITE_KEY', 'Client ID/Client Secrect InfinitePay não configurado')
+  }
+  if (!config.infinitepay_api_key && !disableLinkPayment) {
+    return configError('NO_INFINITE_KEY', 'Chave de API InfinitePay não configurada')
   }
 
   const isSandbox = false
@@ -49,7 +52,7 @@ exports.post = async ({ appSdk }, req, res) => {
   // setup payment gateway object
   listPaymentMethods.forEach(paymentMethod => {
     const methodConfig = config[paymentMethod] || {}
-    console.log('Method Payment ', JSON.stringify(methodConfig))
+
     const isCreditCard = paymentMethod === 'credit_card'
     const isLinkPayment = paymentMethod === 'payment_link'
 
@@ -75,7 +78,7 @@ exports.post = async ({ appSdk }, req, res) => {
 
       if (isCreditCard) {
         if (!gateway.icon) {
-          // gateway.icon = `${baseUri}/credit-card.png`
+          gateway.icon = `${baseUri}/credit-card.png`
         }
         //
         gateway.js_client = {

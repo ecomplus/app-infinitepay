@@ -18,6 +18,7 @@ exports.post = async ({ appSdk, admin }, req, res) => {
     isSandbox, storeId, 'transactions')
 
   const orderId = params.order_id
+  const orderNumber = params.order_number
   const { amount, items, buyer, to } = params
 
   console.log('> Transaction #', storeId, orderId, `${isSandbox ? 'isSandbox' : ''}`)
@@ -25,6 +26,7 @@ exports.post = async ({ appSdk, admin }, req, res) => {
   const transaction = {
     amount: amount.total
   }
+  const callbackUrl = `${baseUri}/infinitepay/callback`
 
   const transactionLink = {
     payment_link: `https://pay.infinitepay.io/${config.infinitepay_user}/` +
@@ -77,6 +79,9 @@ exports.post = async ({ appSdk, admin }, req, res) => {
     const payerIp = params.browser_ip
     data = JSON.parse(Buffer.from(params.credit_card.hash, 'base64'))
     data.metadata.risk.payer_ip = payerIp
+    data.metadata.orderId = orderId
+    data.metadata.orderNumber = orderNumber
+    data.metadata.callback_url = callbackUrl
 
     data.customer = IPCustumer
     data.payment = {
@@ -136,7 +141,7 @@ exports.post = async ({ appSdk, admin }, req, res) => {
           console.log('Authorized transaction in InfinitePay')
           intermediator.transaction_code = attributes.authorization_id
           transaction.status = {
-            current: 'authorized',
+            current: 'paid',
             updated_at: attributes.created_at || new Date().toISOString()
           }
         } else {
@@ -150,18 +155,9 @@ exports.post = async ({ appSdk, admin }, req, res) => {
           redirect_to_payment: false,
           transaction
         })
-
-        admin.firestore().collection('change').doc(data.id)
-          .set({
-            orderId,
-            data,
-            create_at: new Date().toISOString()
-          })
-          .catch(console.error)
       })
 
       .catch(error => {
-        console.log('error ', JSON.stringify(error))
         console.log(error.response)
         // try to debug request error
         const errCode = 'INFINITEPAY_TRANSACTION_ERR'
@@ -197,33 +193,37 @@ exports.post = async ({ appSdk, admin }, req, res) => {
 
   // https://gist.github.com/luisbebop/ca87e04da04bcf662f732b1b6848d6ca#integration-
   // https://infinitepay.io/docs#listar-wallets
-  const callbackUrl = `${baseUri}/infinitepay/callback`
-  infiniteAxios
-    .then((axios) => {
-      return axios.get('/v1/wallets')
-    })
-    .then(({ data }) => {
-      const { results } = data
-      const merchantWallets = results.filter(({ role }) => role === 'merchant')
-      if (!merchantWallets.find(wallet => wallet.callback_url === callbackUrl)) {
-        const endpoint = `/v1/wallets/${merchantWallets[0].wallet_id}`
-        const data = {
-          callback_url: callbackUrl
-        }
-        return axios.patch(endpoint, data)
+  if (params.payment_method.code === 'balance_on_intermediary') {
+    const infinitepayAxiosConfig = {
+      headers: {
+        Authorization: config.infinitepay_api_key
       }
-    })
+    }
+    axios.get('https://api.infinitepay.io/v1/wallets', infinitepayAxiosConfig)
 
-    .catch(error => {
-      const { response, config } = error
-      if (response) {
-        const { status, data } = response
-        const err = new Error(`Failed trying to setup #${storeId} InfinitePay callbacks (${status})`)
-        err.url = config && config.url
-        err.status = status
-        err.response = JSON.stringify(data)
-        return console.error(err)
-      }
-      console.error(error)
-    })
+      .then(({ data }) => {
+        const { results } = data
+        const merchantWallets = results.filter(({ role }) => role === 'merchant')
+        if (!merchantWallets.find(wallet => wallet.callback_url === callbackUrl)) {
+          const endpoint = `https://api.infinitepay.io/v1/wallets/${merchantWallets[0].wallet_id}`
+          const data = {
+            callback_url: callbackUrl
+          }
+          return axios.patch(endpoint, data, infinitepayAxiosConfig)
+        }
+      })
+
+      .catch(error => {
+        const { response, config } = error
+        if (response) {
+          const { status, data } = response
+          const err = new Error(`Failed trying to setup #${storeId} InfinitePay callbacks (${status})`)
+          err.url = config && config.url
+          err.status = status
+          err.response = JSON.stringify(data)
+          return console.error(err)
+        }
+        console.error(error)
+      })
+  }
 }
