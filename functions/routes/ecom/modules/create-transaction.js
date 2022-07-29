@@ -128,7 +128,8 @@ exports.post = async ({ appSdk, admin }, req, res) => {
         if (isSandbox) {
           headers.Env = 'mock'
         }
-        return axios.post('/v2/transactions', data, { headers })
+        const timeout = 40000
+        return axios.post('/v2/transactions', data, { headers, timeout })
       })
       .then((response) => {
         const { data } = response.data
@@ -158,31 +159,47 @@ exports.post = async ({ appSdk, admin }, req, res) => {
       })
 
       .catch(error => {
-        console.log(error.response)
-        // try to debug request error
-        const errCode = 'INFINITEPAY_TRANSACTION_ERR'
         let { message } = error
-        const err = new Error(`${errCode} #${storeId} - ${orderId} => ${message}`)
-        if (error.response) {
-          const { status, data } = error.response
-          if (status !== 401 && status !== 403) {
-            err.payment = JSON.stringify(transaction)
-            err.status = status
-            if (typeof data === 'object' && data) {
-              err.response = JSON.stringify(data)
-            } else {
-              err.response = data
-            }
-          } else if (data && Array.isArray(data.errors) && data.errors[0] && data.errors[0].message) {
-            message = data.errors[0].message
+        // Handle request timeout
+        // https://github.com/axios/axios/blob/d59c70fdfd35106130e9f783d0dbdcddd145b58f/lib/adapters/http.js#L213-L218
+        if (error.code && error.code === 'ECONNABORTED' && message.includes('timeout')) {
+          transaction.intermediator = {
+            payment_method: params.payment_method
           }
+          transaction.status = {
+            current: 'under_analysis',
+            updated_at: new Date().toISOString()
+          }
+          res.send({
+            redirect_to_payment: false,
+            transaction
+          })
+        } else {
+          console.log(error.response)
+          // try to debug request error
+          const errCode = 'INFINITEPAY_TRANSACTION_ERR'
+          const err = new Error(`${errCode} #${storeId} - ${orderId} => ${message}`)
+          if (error.response) {
+            const { status, data } = error.response
+            if (status !== 401 && status !== 403) {
+              err.payment = JSON.stringify(transaction)
+              err.status = status
+              if (typeof data === 'object' && data) {
+                err.response = JSON.stringify(data)
+              } else {
+                err.response = data
+              }
+            } else if (data && Array.isArray(data.errors) && data.errors[0] && data.errors[0].message) {
+              message = data.errors[0].message
+            }
+          }
+          console.error(err)
+          res.status(409)
+          res.send({
+            error: errCode,
+            message
+          })
         }
-        console.error(err)
-        res.status(409)
-        res.send({
-          error: errCode,
-          message
-        })
       })
   } else {
     res.send({
