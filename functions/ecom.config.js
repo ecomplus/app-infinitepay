@@ -155,6 +155,24 @@ const app = {
       },
       hide: true
     },
+    client_id: {
+      schema:{
+        type: 'string',
+        maxLength: 255,
+        title: 'Client ID ',
+        description: 'Seu Client ID de acesso a API do Infinitepay, solicitação via e-mail: dev@infinitepay.io',
+      },
+      hide: true
+    },
+    client_secret: {
+      schema:{
+        type: 'string',
+        maxLength: 255,
+        title: 'Client Secret',
+        description: 'Seu Client Secret de acesso a API do Infinitepay, solicitação via e-mail: dev@infinitepay.io',
+      },
+      hide: true
+    },
     discount: {
       schema: {
         type: 'object',
@@ -261,11 +279,54 @@ const app = {
       },
       hide: false
     },
-    gateway_options: {
+    payment_link: {
       schema: {
         type: 'object',
         additionalProperties: false,
         properties: {
+          disable: {
+            type: 'boolean',
+            default: true,
+            title: 'Desabilitar link de pagamento',
+            description: 'Desabilitar pagamento com link de pagamento'
+          },
+          label: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Rótulo',
+            description: 'Nome da forma de pagamento exibido para os clientes',
+            default: 'Cartão de crédito - Link Pagamento InfinitePay'
+          },
+          text: {
+            type: 'string',
+            maxLength: 1000,
+            title: 'Descrição',
+            description: 'Texto auxiliar sobre a forma de pagamento, pode conter tags HTML'
+          },
+          icon: {
+            type: 'string',
+            maxLength: 255,
+            format: 'uri',
+            title: 'Ícone',
+            description: 'Ícone customizado para a forma de pagamento, URL da imagem'
+          }
+        },
+        title: 'Link de Pagamento',
+        description: 'Opções de forma de pagamento via InfinitePay'
+      },
+      hide: false
+    },
+    credit_card: {
+      schema: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          disable: {
+            type: 'boolean',
+            default: false,
+            title: 'Desabilitar checkout transparente',
+            description: 'Desabilitar pagamento com cartão via checkout transparente'
+          },
           label: {
             type: 'string',
             maxLength: 50,
@@ -287,10 +348,11 @@ const app = {
             description: 'Ícone customizado para a forma de pagamento, URL da imagem'
           }
         },
-        title: 'Opções da forma de pagamento'
+        title: 'Checkout transparente',
+        description: 'Configurações adicionais para cartão de crédito via checkout transparente'
       },
       hide: false
-    }
+    },
   }
 }
 

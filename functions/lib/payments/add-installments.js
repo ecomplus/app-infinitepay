@@ -1,20 +1,14 @@
-module.exports = (amount, installments, gateway = {}, response) => {
-  let maxInterestFree = !(installments.interest_free_min_amount > amount.total)
-    ? installments.max_interest_free : 0
-  const maxInstallments = installments.max_number && maxInterestFree
-    ? Math.max(installments.max_number, maxInterestFree)
-    : installments.max_number || maxInterestFree
+const IPInterestMonthly = require('./ip-interest-monthly.json')
+
+module.exports = (amount, installments = {}, gateway = {}, response) => {
+  let maxInterestFree = installments.max_interest_free
+  const maxInstallments = installments.max_number || 12
   if (maxInstallments > 1) {
-    // default installments option
-    if (!installments.monthly_interest) {
-      maxInterestFree = maxInstallments
-    }
-    const minInstallment = installments.min_installment || 5
     if (response) {
       response.installments_option = {
-        min_installment: minInstallment,
-        max_number: maxInterestFree || installments.max_number,
-        monthly_interest: maxInterestFree ? 0 : installments.monthly_interest
+        min_installment: 1,
+        max_number: maxInterestFree > 1 ? maxInterestFree : maxInstallments,
+        monthly_interest: maxInterestFree > 1 ? 0 : IPInterestMonthly[maxInstallments - 1]
       }
     }
 
@@ -24,12 +18,10 @@ module.exports = (amount, installments, gateway = {}, response) => {
       const tax = !(maxInterestFree >= number)
       let interest
       if (tax) {
-        interest = installments.monthly_interest / 100
+        interest = IPInterestMonthly[number - 1] / 100
       }
-      const value = !tax ? amount.total / number
-        // https://pt.wikipedia.org/wiki/Tabela_Price
-        : amount.total * (interest / (1 - Math.pow(1 + interest, -number)))
-      if (value >= minInstallment) {
+      const value = !tax ? amount.total / number : amount.total * (interest / (1 - Math.pow(1 + interest, -number)))
+      if (value && value >= 1) {
         gateway.installment_options.push({
           number,
           value,
