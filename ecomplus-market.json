@@ -1,7 +1,7 @@
 {
   "app": {
-    "title": "InfinitePay Link",
-    "short_description": "Pagamento via cartão de crédito com link de pagamentos InfinitePay",
+    "title": "InfinitePay",
+    "short_description": "Pagamento via cartão de crédito ou link de pagamentos InfinitePay",
     "category": "sales"
   }
 }

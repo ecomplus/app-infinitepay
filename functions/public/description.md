@@ -1,6 +1,6 @@
 # InfinitePay
 
-Cartão de crédito via link de pagamentos [InfinitePay](https://infinitepay.io/#link-pagamentos):
+Cartão de crédito transparente ou link de pagamentos [InfinitePay](https://infinitepay.io/#link-pagamentos):
 
 - Atualização automática de status da transação;
 - Desconto fixo ou percentual por forma de pagamento;
