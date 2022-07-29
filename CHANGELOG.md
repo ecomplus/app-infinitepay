@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/ecomplus/application-starter/compare/v1.0.1...v2.0.0) (2022-07-29)
+
+
+### Features
+
+* **Checkout:** create transparent checkout ([c812b3e](https://github.com/ecomplus/application-starter/commit/c812b3e9ec660f756b7befe5bf8551fda6cc78a9))
+
+
+### Bug Fixes
+
+* **deps:** remove @google-cloud/firestore from direct function dependencies ([b3b5584](https://github.com/ecomplus/application-starter/commit/b3b55849edfe3125ca09dcfa76eb4f8bd0685250))
+* **deps:** update all non-major dependencies ([#22](https://github.com/ecomplus/application-starter/issues/22)) ([2d3e010](https://github.com/ecomplus/application-starter/commit/2d3e010adea023321bd4ed73f2acb5cd5e6d3679))
+* **deps:** update all non-major dependencies ([#4](https://github.com/ecomplus/application-starter/issues/4)) ([dcb37d5](https://github.com/ecomplus/application-starter/commit/dcb37d5df670926e286c978abad23c8ada826c73))
+* **deps:** update all non-major dependencies ([#78](https://github.com/ecomplus/application-starter/issues/78)) [skip ci] ([3c3ffd1](https://github.com/ecomplus/application-starter/commit/3c3ffd10ddeb74ac50ff58b7113528a11afb5f64))
+* **deps:** update dependency @google-cloud/firestore to ^4.12.2 ([#20](https://github.com/ecomplus/application-starter/issues/20)) ([f9e08d6](https://github.com/ecomplus/application-starter/commit/f9e08d668ecbe6fa66fec3486ed181eaa33221bd))
+
 ### [1.0.1](https://github.com/ecomplus/application-starter/compare/v1.0.0...v1.0.1) (2021-02-24)
 
 
