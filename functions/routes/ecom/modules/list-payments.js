@@ -1,4 +1,4 @@
-const { hostingUri } = require('../../../__env')
+const { baseUri } = require('../../../__env')
 const fs = require('fs')
 const path = require('path')
 const addInstallments = require('../../../lib/payments/add-installments')
@@ -78,7 +78,7 @@ exports.post = async ({ appSdk }, req, res) => {
 
       if (isCreditCard) {
         if (!gateway.icon) {
-          gateway.icon = `${hostingUri}/credit-card.png`
+          gateway.icon = `${baseUri}/infinitepay.png`
         }
         //
         gateway.js_client = {
