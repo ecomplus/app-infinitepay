@@ -133,6 +133,7 @@ exports.post = async ({ appSdk, admin }, req, res) => {
       })
       .then((response) => {
         const { data } = response.data
+        console.log('Payment response', JSON.stringify(data))
         const { attributes } = data
         const intermediator = {
           transaction_id: attributes.nsu,
