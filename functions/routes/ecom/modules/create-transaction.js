@@ -121,7 +121,7 @@ exports.post = async ({ appSdk, admin }, req, res) => {
 
     infiniteAxios
       .then((axios) => {
-        console.log('>> SendTransaction Infinite')
+        console.log('>> SendTransaction Infinite: ', data, ' <<')
         // url: 'https://cloudwalk.github.io/infinitepay-docs/#autorizando-um-pagamento',
         const headers = {
           Accept: 'application/json'
