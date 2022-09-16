@@ -21,7 +21,7 @@ exports.post = async ({ appSdk, admin }, req, res) => {
   const orderNumber = params.order_number
   const { amount, items, buyer, to } = params
 
-  console.log('> Transaction #', storeId, orderId, `${isSandbox ? 'isSandbox' : ''}`)
+  console.log('> Transaction #s:', storeId, ' #order:',orderId, ` ${isSandbox ? 'isSandbox' : ''} <`)
 
   const transaction = {
     amount: amount.total
@@ -132,8 +132,11 @@ exports.post = async ({ appSdk, admin }, req, res) => {
         return axios.post('/v2/transactions', data, { headers, timeout })
       })
       .then((response) => {
+        console.log('>>Response: ', JSON.stringify(response), ' <<<')
         const { data } = response.data
+        console.log('>>Response.data: ', JSON.stringify(response.data), ' <<<')
         const { attributes } = data
+        console.log('>>attributes: ', JSON.stringify(response.data), ' <<<')
         const intermediator = {
           transaction_id: attributes.nsu,
           payment_method: params.payment_method
@@ -159,6 +162,7 @@ exports.post = async ({ appSdk, admin }, req, res) => {
       })
 
       .catch(error => {
+        console.log('Error: ', JSON.stringify(error), ' <<<')
         let { message } = error
         // Handle request timeout
         // https://github.com/axios/axios/blob/d59c70fdfd35106130e9f783d0dbdcddd145b58f/lib/adapters/http.js#L213-L218
