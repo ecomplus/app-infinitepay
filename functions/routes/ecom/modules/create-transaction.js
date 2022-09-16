@@ -121,6 +121,7 @@ exports.post = async ({ appSdk, admin }, req, res) => {
 
     infiniteAxios
       .then((axios) => {
+        console.log('>>SendTransaction Infinite')
         // url: 'https://cloudwalk.github.io/infinitepay-docs/#autorizando-um-pagamento',
         const headers = {
           Accept: 'application/json'
@@ -128,15 +129,16 @@ exports.post = async ({ appSdk, admin }, req, res) => {
         if (isSandbox) {
           headers.Env = 'mock'
         }
+        console.log('>>Before data: ', data)
         const timeout = 40000
         return axios.post('/v2/transactions', data, { headers, timeout })
       })
       .then((response) => {
-        console.log('>>Response: ', JSON.stringify(response), ' <<<')
+        console.log('>>Response: ', response, ' <<<')
         const { data } = response.data
-        console.log('>>Response.data: ', JSON.stringify(response.data), ' <<<')
+        console.log('>>Response.data: ', response.data, ' <<<')
         const { attributes } = data
-        console.log('>>attributes: ', JSON.stringify(response.data), ' <<<')
+        console.log('>>attributes: ',attributes, ' <<<')
         const intermediator = {
           transaction_id: attributes.nsu,
           payment_method: params.payment_method
