@@ -1,4 +1,4 @@
-; (function () {
+ (function () {
   window._infiniteHashCard = function (cardClient) {
     return new Promise((resolve, reject) => {
       const elementsForm = `
@@ -16,15 +16,15 @@
 
       document.body.appendChild(newForm)
 
-      const token = window._infiniteJwtTokenCard
+      const access_token = window._infiniteJwtTokenCard
       // const sandbox = window._infiniteCardSandbox
       const form = document.querySelector('#formIP')
-      const ipay = new IPay({ token })
-      console.log('ipay ', ipay)
+      const ipay = new IPay({ access_token })
+      // console.log('ipay ', ipay)
       ipay.listeners = {
         'result:success': function () {
           // form.submit() // sucesso, continue o pagamento
-          console.log('ok')
+          console.log('Tokenize OK')
           const token = document.querySelector("[name='ip[token]']").value
           const sessionId = document.querySelector("[name='ip[session_id]']").value
           const card = {
