@@ -121,7 +121,7 @@ exports.post = async ({ appSdk, admin }, req, res) => {
 
     infiniteAxios
       .then((axios) => {
-        console.log('>>SendTransaction Infinite')
+        console.log('>> SendTransaction Infinite')
         // url: 'https://cloudwalk.github.io/infinitepay-docs/#autorizando-um-pagamento',
         const headers = {
           Accept: 'application/json'
@@ -129,28 +129,27 @@ exports.post = async ({ appSdk, admin }, req, res) => {
         if (isSandbox) {
           headers.Env = 'mock'
         }
-        console.log('>>Before data: ', data)
+        // console.log('>>Before data: ', data)
         const timeout = 40000
         return axios.post('/v2/transactions', data, { headers, timeout })
       })
       .then((response) => {
-        console.log('>>Response: ', response, ' <<<')
         const { data } = response.data
-        console.log('>>Response.data: ', response.data, ' <<<')
         const { attributes } = data
-        console.log('>>attributes: ',attributes, ' <<<')
+        console.log('>>Response Attributes: ',attributes, ' <<<')
         const intermediator = {
           transaction_id: attributes.nsu,
           payment_method: params.payment_method
         }
         if (attributes.authorization_id) {
-          console.log('Authorized transaction in InfinitePay')
+          console.log('Authorized transaction in InfinitePay #s:', storeId, ' o:',orderId)
           intermediator.transaction_code = attributes.authorization_id
           transaction.status = {
             current: 'paid',
             updated_at: attributes.created_at || new Date().toISOString()
           }
         } else {
+          console.log('Unauthorized transaction in InfinitePay #s:', storeId, ' o:',orderId)
           transaction.status = {
             current: 'unauthorized',
             updated_at: attributes.created_at || new Date().toISOString()
