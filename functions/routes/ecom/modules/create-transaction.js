@@ -13,7 +13,7 @@ exports.post = async ({ appSdk, admin }, req, res) => {
   const { storeId } = req
   const config = Object.assign({}, application.data, application.hidden_data)
 
-  const isSandbox = false
+  const isSandbox = false // TODO: false
   const infiniteAxios = CreateAxios(config.client_id, config.client_secret,
     isSandbox, storeId, 'transactions')
 
@@ -21,7 +21,7 @@ exports.post = async ({ appSdk, admin }, req, res) => {
   const orderNumber = params.order_number
   const { amount, items, buyer, to } = params
 
-  console.log('> Transaction #s:', storeId, ' #order:',orderId, ` ${isSandbox ? 'isSandbox' : ''} <`)
+  console.log('> Transaction #s:', storeId, ' #order:', orderId, ` ${isSandbox ? 'isSandbox' : ''} <`)
 
   const transaction = {
     amount: amount.total
@@ -44,8 +44,10 @@ exports.post = async ({ appSdk, admin }, req, res) => {
     }
   }
 
+  let finalAmount = Math.floor(amount.total * 100) / 100
   let data = {}
-  if (params.payment_method.code === 'credit_card') {
+  const paymentMethod = params.payment_method.code
+  if (paymentMethod === 'credit_card') {
     const IPCustumer = {
       document_number: buyer.doc_number,
       first_name: buyer.fullname.split(' ')[0],
@@ -58,7 +60,6 @@ exports.post = async ({ appSdk, admin }, req, res) => {
       state: to.province || to.province_code,
       zip: to.zip
     }
-    let finalAmount = Math.floor(amount.total * 100) / 100
     let installmentsNumber = params.installments_number
     if (installmentsNumber > 1) {
       if (config.installments) {
@@ -103,23 +104,22 @@ exports.post = async ({ appSdk, admin }, req, res) => {
     data.order = {
       id: orderId,
       amount: Math.floor(finalAmount * 100),
-      items: ipItems
+      items: ipItems,
+      delivery_details: {
+        document_number: (data.customer && data.customer.document_number) || buyer.doc_number,
+        email: data.customer.email,
+        name: data.customer.first_name + ' ' + data.customer.last_name,
+        phone_number: `${data.customer.phone_number}`,
+        line1: to.street + ', ' + String(to.number) || 's/n',
+        line2: to.complement || '',
+        city: to.city,
+        state: to.province || to.province_code,
+        zip: to.zip,
+        country: 'BR'
+      }
     }
 
-    data.delivery_details = {
-      document_number: (data.customer && data.customer.document_number) || buyer.doc_number,
-      email: data.customer.email,
-      name: data.customer.first_name + ' ' + data.customer.last_name,
-      phone_number: `${data.customer.phone_number}`,
-      line1: to.street + ', ' + String(to.number) || 's/n',
-      line2: to.complement || '',
-      city: to.city,
-      state: to.province || to.province_code,
-      zip: to.zip,
-      country: 'BR'
-    }
-
-    data.billing_details = data.delivery_details
+    data.billing_details = data.order.delivery_details
 
     infiniteAxios
       .then((axios) => {
@@ -138,20 +138,20 @@ exports.post = async ({ appSdk, admin }, req, res) => {
       .then((response) => {
         const { data } = response.data
         const { attributes } = data
-        console.log('>>Response Attributes: ',attributes, ' <<<')
+        console.log('>>Response Attributes: ', attributes, ' <<<')
         const intermediator = {
           transaction_id: attributes.nsu,
           payment_method: params.payment_method
         }
         if (attributes.authorization_id) {
-          console.log('Authorized transaction in InfinitePay #s:', storeId, ' o:',orderId)
+          console.log('Authorized transaction in InfinitePay #s:', storeId, ' o:', orderId)
           intermediator.transaction_code = attributes.authorization_id
           transaction.status = {
             current: 'paid',
             updated_at: attributes.created_at || new Date().toISOString()
           }
         } else {
-          console.log('Unauthorized transaction in InfinitePay #s:', storeId, ' o:',orderId)
+          console.log('Unauthorized transaction in InfinitePay #s:', storeId, ' o:', orderId)
           transaction.status = {
             current: 'unauthorized',
             updated_at: attributes.created_at || new Date().toISOString()
