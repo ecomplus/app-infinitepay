@@ -103,24 +103,23 @@ exports.post = async ({ appSdk, admin }, req, res) => {
     data.order = {
       id: orderId,
       amount: Math.floor(finalAmount * 100),
-      items: ipItems,
-      delivery_details: {
-        email: data.customer.email,
-        name: data.customer.first_name + ' ' + data.customer.last_name,
-        phone_number: `${data.customer.phone_number}`,
-        address: {
-          line1: to.street + ', ' + String(to.number) || 's/n',
-          line2: to.complement || '',
-          city: to.city,
-          state: to.province || to.province_code,
-          zip: to.zip,
-          country: 'BR'
-        }
-      }
+      items: ipItems
     }
 
-    data.billing_details = delivery_details
-    data.billing_details.document_number = (data.customer && data.customer.document_number) || buyer.doc_number
+    data.delivery_details = {
+      document_number: (data.customer && data.customer.document_number) || buyer.doc_number,
+      email: data.customer.email,
+      name: data.customer.first_name + ' ' + data.customer.last_name,
+      phone_number: `${data.customer.phone_number}`,
+      line1: to.street + ', ' + String(to.number) || 's/n',
+      line2: to.complement || '',
+      city: to.city,
+      state: to.province || to.province_code,
+      zip: to.zip,
+      country: 'BR'
+    }
+
+    data.billing_details = data.delivery_details
 
     infiniteAxios
       .then((axios) => {
