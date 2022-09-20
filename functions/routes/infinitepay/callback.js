@@ -8,6 +8,7 @@ exports.post = ({ appSdk }, req, res) => {
   // https://gist.github.com/luisbebop/ca87e04da04bcf662f732b1b6848d6ca#integration-
   const transactionId = req.body && req.body.transaction_id
   const hasPix = req.query && req.query.pix
+  console.log(`>> Callback Infinite: ${hasPix ? 'pix' : 'PaymentLink'} <`)
   if (transactionId && !hasPix) {
     const { metadata } = req.body
     if (metadata && /[\d]+::[a-f0-9]+/.test(metadata)) {
@@ -92,19 +93,22 @@ exports.post = ({ appSdk }, req, res) => {
     console.log(`> Callback ignored: ${msg}`)
     return res.status(203).send(msg)
   } else if (hasPix) {
+    console.log('>Has Pix: ', hasPix, ' <')
     const { metadata } = req.body
-    if (metadata && /[\d]+::[a-f0-9]+/.test(metadata)) {
-      let [storeId, orderId, transactionReference] = metadata.split('::')
-      storeId = parseInt(storeId, 10)
-      if (storeId > 100) {
-        console.log('> Callback PIX #s:', storeId, ' o:', orderId)
+    const { storeId, orderId, transactionReference } = metadata
+    if (metadata && storeId && orderId && transactionReference) {
+      const storeID = parseInt(storeId, 10)
+      console.log('>PIX #s: ', storeId, ' o: ', orderId, ' code: ', transactionReference, ' <')
+      if (storeID > 100) {
         if (hasPix === 'confirm') {
-          const secret = Buffer.from(`${storeId}-${orderId}`, 'base64').toString()
-          const signature = req.headers['X-Callback-Signature']
-          const generatedSignature = cryptoJS.HmacSHA256(req.body, secret)
-          console.log('>> ', (generatedSignature === signature))
-          const test = true // TODO: remove
-          if (test) {
+          const secret = Buffer.from(`${storeId}-${orderId}-${transactionReference}`).toString('base64')
+          const signature = req.headers['x-callback-signature']
+          const generatedSignature = cryptoJS.HmacSHA256(req.body, secret).toString()
+          // console.log('>signature: ', signature, ' <')
+          // console.log('>generatedSignature: ', generatedSignature)
+          // console.log('>>test: ', (generatedSignature === signature))
+          const testSignature = generatedSignature === signature
+          if (testSignature) {
             let order
             return getAppData({ appSdk, storeId })
               .then(config => {
@@ -122,34 +126,64 @@ exports.post = ({ appSdk }, req, res) => {
                 const transaction = order.transactions.find(({ intermediator }) => {
                   return intermediator && intermediator.transaction_reference === String(transactionReference)
                 })
-                console.log('>>Transaction ', transaction)
-                // const resource = `orders/${order._id}/payments_history.json`
-                // const method = 'POST'
-                // const body = {
-                //   date_time: new Date().toISOString(),
-                //   status: 'paid',
-                //   flags: ['infinitepay']
-                // }
-                // if (transaction) {
-                //   body.transaction_id = transaction._id
-                // }
-                // return appSdk.apiRequest(storeId, resource, method, body)
+                // console.log('>>Transaction ', JSON.stringify(transaction), ' <<')
+                const resource = `orders/${order._id}/payments_history.json`
+                const method = 'POST'
+                const body = {
+                  date_time: new Date().toISOString(),
+                  status: 'paid',
+                  flags: ['infinitepay']
+                }
+                if (transaction) {
+                  body.transaction_id = transaction._id
+                }
+                return appSdk.apiRequest(storeId, resource, method, body)
               })
-              // .then(() => {
-              //   res.sendStatus(200)
-              // })
-              // .catch(error => {
-              //   const { response, config } = error
-              //   let status
-              //   if (response) {
-              //     status = response.status
-              //     const err = new Error(`#${storeId} InfinitePay callback PIX error ${status}`)
-              //     err.url = config && config.url
-              //     err.status = status
-              //     err.response = JSON.stringify(response.data)
-              //     console.error(err)
-              //   } else {
-              // })
+              .then(() => {
+                const transaction = order.transactions.find(({ intermediator }) => {
+                  return intermediator && intermediator.transaction_reference === String(transactionReference)
+                })
+                let notes = transaction.notes
+                notes = notes.replace('display:block', 'display:none') // disable QR Code
+                notes = `${notes} # PIX Aprovado`
+                transaction.notes = notes
+                const resource = `orders/${order._id}.json`
+                const method = 'PATCH'
+                const body = {
+                  transactions: order.transactions
+                }
+                // Update to disable QR Code
+                appSdk.apiRequest(storeId, resource, method, body)
+                  .then(() => {
+                    console.log('>Update notes Sucess')
+                  })
+                  .catch((e) => {
+                    console.log('>>Update notes error: ', e)
+                  })
+
+                res.sendStatus(200)
+              })
+              .catch(error => {
+                const { response, config } = error
+                let status
+                if (response) {
+                  status = response.status
+                  const err = new Error(`#${storeId} InfinitePay callback PIX error ${status}`)
+                  err.url = config && config.url
+                  err.status = status
+                  err.response = JSON.stringify(response.data)
+                  console.error(err)
+                }
+                res.send({
+                  status: status || 500,
+                  msg: `#${storeId} InfinitePay callback PIX error`
+                })
+              })
+          } else {
+            res.send({
+              status: 403,
+              msg: `#${storeId} InfinitePay callback PIX error, signature invalid `
+            })
           }
         }
       }

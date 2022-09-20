@@ -30,7 +30,11 @@ exports.post = async ({ appSdk }, req, res) => {
     return configError('NO_INFINITE_KEY', 'Chave de API InfinitePay não configurada')
   }
 
-  const isSandbox = true // TODO: false
+  if (!config.pix.disable && !config.pix.key_pix) {
+    return configError('NO_INFINITE_KEY_PIX', 'Chave PIX InfinitePay não configurada')
+  }
+
+  const isSandbox = false // TODO: false
   console.log('> List Payment #', storeId, `${isSandbox ? 'isSandbox' : ''}`)
 
   const tokenJWT = await getToken(config.client_id, config.client_secret,

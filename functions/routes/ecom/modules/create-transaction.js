@@ -15,7 +15,7 @@ exports.post = async ({ appSdk, admin }, req, res) => {
   const { storeId } = req
   const config = Object.assign({}, application.data, application.hidden_data)
 
-  const isSandbox = true // TODO: false
+  const isSandbox = false // TODO: false
   const infiniteAxios = CreateAxios(config.client_id, config.client_secret,
     isSandbox, storeId, 'transactions')
 
@@ -211,8 +211,8 @@ exports.post = async ({ appSdk, admin }, req, res) => {
         }
       })
   } else if (paymentMethod === 'account_deposit') {
-    const secret = Buffer.from(`${storeId}-${orderId}`, 'base64').toString()
     const transactionReference = new Date().getTime()
+    const secret = Buffer.from(`${storeId}-${orderId}-${transactionReference}`).toString('base64')
     console.log('>> secret: ', (isSandbox ? secret : ''))
 
     data.amount = Math.floor(finalAmount * 100)
@@ -229,18 +229,15 @@ exports.post = async ({ appSdk, admin }, req, res) => {
       storeId,
       transactionReference
     }
-    const generatedSignature = isSandbox ? cryptoJS.HmacSHA256(data, secret) : ''
+    const generatedSignature = isSandbox ? cryptoJS.HmacSHA256(data, secret).toString() : ''
     console.log('>>Gerate: ', generatedSignature)
 
     infiniteAxios
       .then((axios) => {
-        console.log('>> SendTransaction PIX Infinite: ', data, ' <<')
+        console.log('>> SendTransaction PIX Infinite: ', JSON.stringify(data), ' <<')
         // url: 'https://cloudwalk.github.io/infinitepay-docs/#autorizando-um-pagamento',
         const headers = {
           Accept: 'application/json'
-        }
-        if (isSandbox) {
-          headers.Env = 'mock'
         }
         return axios.post('/v2/transactions', data, { headers })
       })
@@ -250,16 +247,16 @@ exports.post = async ({ appSdk, admin }, req, res) => {
         console.log('>>Response Attributes: ', attributes, ' <<<')
         const intermediator = {
           transaction_id: attributes.nsu,
-          transaction_reference: transactionReference,
           payment_method: params.payment_method
         }
         const brCode = attributes.br_code
-        if (attributes.authorization_id && brCode) {
+        if (brCode) {
           const qrCodeSrc = `https://gerarqrcodepix.com.br/api/v1?brcode=${brCode}&tamanho=256`
           transaction.notes = `<img src="${qrCodeSrc}" style="display:block;margin:0 auto">`
 
           console.log('Authorized transaction PIX in InfinitePay #s:', storeId, ' o:', orderId)
           intermediator.transaction_code = attributes.authorization_id
+          intermediator.transaction_reference = transactionReference
           transaction.status = {
             current: 'pending',
             updated_at: attributes.created_at || new Date().toISOString()
