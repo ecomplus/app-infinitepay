@@ -366,6 +366,12 @@ const app = {
             title: 'Desabilitar PIX',
             description: 'Desabilitar pagamento com PIX via InfinitePay'
           },
+          key_pix: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Chave PIX InfinitePay',
+            description: 'Sua chave Pix da InfinitePay'
+          },
           label: {
             type: 'string',
             maxLength: 50,
