@@ -105,7 +105,7 @@ exports.post = async ({ appSdk, admin }, req, res) => {
       amount: Math.floor(finalAmount * 100),
       items: ipItems,
       delivery_details: {
-        email: data.email,
+        email: data.customer.email,
         name: data.customer.first_name + ' ' + data.customer.last_name,
         phone_number: `${data.customer.phone_number}`,
         address: {
@@ -118,6 +118,9 @@ exports.post = async ({ appSdk, admin }, req, res) => {
         }
       }
     }
+
+    data.billing_details = delivery_details
+    data.billing_details.document_number = (data.customer && data.customer.document_number) || buyer.doc_number
 
     infiniteAxios
       .then((axios) => {
