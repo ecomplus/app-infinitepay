@@ -58,6 +58,7 @@ exports.post = async ({ appSdk, admin }, req, res) => {
       complement: to.complement || undefined,
       city: to.city,
       state: to.province || to.province_code,
+      country: 'BR',
       zip: to.zip
     }
     let installmentsNumber = params.installments_number
