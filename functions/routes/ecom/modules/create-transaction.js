@@ -2,6 +2,8 @@ const { baseUri } = require('../../../__env')
 const axios = require('axios')
 const addInstallments = require('../../../lib/payments/add-installments')
 const { CreateAxios } = require('../../../lib/inifinitepay/create-acess')
+// Encrypt package
+const cryptoJS = require('crypto-js')
 
 exports.post = async ({ appSdk, admin }, req, res) => {
   /* JSON Schema reference for the Create Transaction module objects:
@@ -13,7 +15,7 @@ exports.post = async ({ appSdk, admin }, req, res) => {
   const { storeId } = req
   const config = Object.assign({}, application.data, application.hidden_data)
 
-  const isSandbox = false // TODO: false
+  const isSandbox = true // TODO: false
   const infiniteAxios = CreateAxios(config.client_id, config.client_secret,
     isSandbox, storeId, 'transactions')
 
@@ -207,6 +209,100 @@ exports.post = async ({ appSdk, admin }, req, res) => {
             message
           })
         }
+      })
+  } else if (paymentMethod === 'account_deposit') {
+    const secret = Buffer.from(`${storeId}-${orderId}`, 'base64').toString()
+    const transactionReference = new Date().getTime()
+    console.log('>> secret: ', (isSandbox ? secret : ''))
+
+    data.amount = Math.floor(finalAmount * 100)
+    data.capture_method = 'pix'
+    data.metadata = {
+      origin: 'ecomplus',
+      payment_method: 'pix',
+      callback: {
+        validate: `${callbackUrl}?pix=denied`,
+        confirm: `${callbackUrl}?pix=confirm`
+      },
+      secret,
+      orderId,
+      storeId,
+      transactionReference
+    }
+    const generatedSignature = isSandbox ? cryptoJS.HmacSHA256(data, secret) : ''
+    console.log('>>Gerate: ', generatedSignature)
+
+    infiniteAxios
+      .then((axios) => {
+        console.log('>> SendTransaction PIX Infinite: ', data, ' <<')
+        // url: 'https://cloudwalk.github.io/infinitepay-docs/#autorizando-um-pagamento',
+        const headers = {
+          Accept: 'application/json'
+        }
+        if (isSandbox) {
+          headers.Env = 'mock'
+        }
+        return axios.post('/v2/transactions', data, { headers })
+      })
+      .then((response) => {
+        const { data } = response.data
+        const { attributes } = data
+        console.log('>>Response Attributes: ', attributes, ' <<<')
+        const intermediator = {
+          transaction_id: attributes.nsu,
+          transaction_reference: transactionReference,
+          payment_method: params.payment_method
+        }
+        const brCode = attributes.br_code
+        if (attributes.authorization_id && brCode) {
+          const qrCodeSrc = `https://gerarqrcodepix.com.br/api/v1?brcode=${brCode}&tamanho=256`
+          transaction.notes = `<img src="${qrCodeSrc}" style="display:block;margin:0 auto">`
+
+          console.log('Authorized transaction PIX in InfinitePay #s:', storeId, ' o:', orderId)
+          intermediator.transaction_code = attributes.authorization_id
+          transaction.status = {
+            current: 'pending',
+            updated_at: attributes.created_at || new Date().toISOString()
+          }
+        } else {
+          console.log('Unauthorized transaction PIX in InfinitePay #s:', storeId, ' o:', orderId)
+          transaction.status = {
+            current: 'unauthorized',
+            updated_at: attributes.created_at || new Date().toISOString()
+          }
+        }
+        transaction.intermediator = intermediator
+        res.send({
+          redirect_to_payment: false,
+          transaction
+        })
+      })
+      .catch(error => {
+        console.log('Error: ', JSON.stringify(error), ' <<<')
+        let { message } = error
+        // try to debug request error
+        const errCode = 'INFINITEPAY_TRANSACTION_ERR'
+        const err = new Error(`${errCode} #${storeId} - ${orderId} => ${message}`)
+        if (error.response) {
+          const { status, data } = error.response
+          if (status !== 401 && status !== 403) {
+            err.payment = JSON.stringify(transaction)
+            err.status = status
+            if (typeof data === 'object' && data) {
+              err.response = JSON.stringify(data)
+            } else {
+              err.response = data
+            }
+          } else if (data && Array.isArray(data.errors) && data.errors[0] && data.errors[0].message) {
+            message = data.errors[0].message
+          }
+        }
+        console.error(err)
+        res.status(409)
+        res.send({
+          error: errCode,
+          message
+        })
       })
   } else {
     res.send({

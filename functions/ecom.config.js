@@ -353,6 +353,51 @@ const app = {
       },
       hide: false
     },
+    pix: {
+      schema: {
+        type: 'object',
+        title: 'PIX',
+        description: 'Configurações adicionais para PIX.',
+        additionalProperties: false,
+        properties: {
+          disable: {
+            type: 'boolean',
+            default: false,
+            title: 'Desabilitar PIX',
+            description: 'Desabilitar pagamento com PIX via InfinitePay'
+          },
+          label: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Rótulo',
+            description: 'Nome da forma de pagamento exibido para os clientes',
+            default: 'PIX'
+          },
+          text: {
+            type: 'string',
+            maxLength: 1000,
+            title: 'Descrição',
+            description: 'Texto auxiliar sobre a forma de pagamento, pode conter tags HTML'
+          },
+          icon: {
+            type: 'string',
+            maxLength: 255,
+            format: 'uri',
+            title: 'Ícone',
+            description: 'Ícone customizado para a forma de pagamento, URL da imagem'
+          },
+          min_amount: {
+            type: 'number',
+            minimum: 0,
+            maximum: 999999999,
+            title: 'Pedido mínimo',
+            default: 0,
+            description: 'Montante mínimo para listar meio de pagamento via Pix'
+          }
+        },
+      },
+      hide: false
+    },
   }
 }
 

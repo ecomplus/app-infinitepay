@@ -30,7 +30,7 @@ exports.post = async ({ appSdk }, req, res) => {
     return configError('NO_INFINITE_KEY', 'Chave de API InfinitePay não configurada')
   }
 
-  const isSandbox = false
+  const isSandbox = true // TODO: false
   console.log('> List Payment #', storeId, `${isSandbox ? 'isSandbox' : ''}`)
 
   const tokenJWT = await getToken(config.client_id, config.client_secret,
@@ -41,7 +41,7 @@ exports.post = async ({ appSdk }, req, res) => {
     payment_gateways: []
   }
 
-  const listPaymentMethods = ['payment_link', 'credit_card']
+  const listPaymentMethods = ['payment_link', 'credit_card', 'account_deposit']
 
   const intermediator = {
     name: 'InfinitePay',
@@ -51,12 +51,14 @@ exports.post = async ({ appSdk }, req, res) => {
 
   // setup payment gateway object
   listPaymentMethods.forEach(paymentMethod => {
-    const methodConfig = config[paymentMethod] || {}
-
+    const isPix = paymentMethod === 'account_deposit'
     const isCreditCard = paymentMethod === 'credit_card'
     const isLinkPayment = paymentMethod === 'payment_link'
 
-    if (!methodConfig.disable) {
+    const methodConfig = isPix ? 'pix' : (config[paymentMethod] || {})
+    const minAmount = methodConfig.minAmount || 0
+
+    if (!methodConfig.disable && (amount.total >= minAmount)) {
       const label = methodConfig.label ? methodConfig.label : (isCreditCard ? 'Cartão de crédito' : (isLinkPayment ? 'Cartão de crédito - Link de Pagamento' : 'Pix'))
 
       const gateway = {
