@@ -2,8 +2,6 @@ const { baseUri } = require('../../../__env')
 const axios = require('axios')
 const addInstallments = require('../../../lib/payments/add-installments')
 const { CreateAxios } = require('../../../lib/inifinitepay/create-acess')
-// Encrypt package
-const cryptoJS = require('crypto-js')
 
 exports.post = async ({ appSdk, admin }, req, res) => {
   /* JSON Schema reference for the Create Transaction module objects:
@@ -211,6 +209,8 @@ exports.post = async ({ appSdk, admin }, req, res) => {
         }
       })
   } else if (paymentMethod === 'account_deposit') {
+    const firestoreColl = 'infinitepay_transactions_pix'
+
     const transactionReference = new Date().getTime()
     const secret = Buffer.from(`${storeId}-${orderId}-${transactionReference}`).toString('base64')
     console.log('>> secret: ', (isSandbox ? secret : ''))
@@ -222,15 +222,13 @@ exports.post = async ({ appSdk, admin }, req, res) => {
       payment_method: 'pix',
       callback: {
         validate: `${callbackUrl}?pix=denied`,
-        confirm: `${callbackUrl}?pix=confirm`
+        confirm: `${callbackUrl}?pix=confirm`,
+        secret
       },
-      secret,
       orderId,
       storeId,
       transactionReference
     }
-    const generatedSignature = isSandbox ? cryptoJS.HmacSHA256(data, secret).toString() : ''
-    console.log('>>Gerate: ', generatedSignature)
 
     infiniteAxios
       .then((axios) => {
@@ -246,20 +244,34 @@ exports.post = async ({ appSdk, admin }, req, res) => {
         const { attributes } = data
         console.log('>>Response Attributes: ', attributes, ' <<<')
         const intermediator = {
-          transaction_id: attributes.nsu,
+          transaction_code: attributes.nsu,
           payment_method: params.payment_method
         }
         const brCode = attributes.br_code
-        if (brCode) {
+        const transactionId = attributes.nsu_host
+        if (brCode && transactionId) {
           const qrCodeSrc = `https://gerarqrcodepix.com.br/api/v1?brcode=${brCode}&tamanho=256`
-          transaction.notes = `<img src="${qrCodeSrc}" style="display:block;margin:0 auto">`
+          transaction.notes = `<img src="${qrCodeSrc}" style="display:block;margin:0 auto">
+            <lable style="display:block;margin:1 auto"> ${brCode} </lable>`
 
           console.log('Authorized transaction PIX in InfinitePay #s:', storeId, ' o:', orderId)
-          intermediator.transaction_code = attributes.authorization_id
+          intermediator.transaction_id = transactionId
           intermediator.transaction_reference = transactionReference
           transaction.status = {
             current: 'pending',
             updated_at: attributes.created_at || new Date().toISOString()
+          }
+          const documentRef = require('firebase-admin')
+            .firestore()
+            .doc(`${firestoreColl}/${transactionId}`)
+          if (documentRef) {
+            documentRef.set({
+              isSandbox,
+              orderId,
+              storeId,
+              secret,
+              transactionReference
+            }).catch(console.error)
           }
         } else {
           console.log('Unauthorized transaction PIX in InfinitePay #s:', storeId, ' o:', orderId)
