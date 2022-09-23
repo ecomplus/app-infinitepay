@@ -1,12 +1,15 @@
 const IPInterestMonthly = require('./ip-interest-monthly.json')
 
 module.exports = (amount, installments = {}, gateway = {}, response) => {
-  let maxInterestFree = installments.max_interest_free
-  const maxInstallments = installments.max_number || 12
+  const maxInterestFree = installments.max_interest_free
+  const minInstallment = installments.min_installment || 5
+  const qtyPosssibleInstallment = Math.floor((amount.total / minInstallment))
+  const maxInstallments = installments.max_number || (qtyPosssibleInstallment < 12 ? qtyPosssibleInstallment : 12)
+
   if (maxInstallments > 1) {
     if (response) {
       response.installments_option = {
-        min_installment: 1,
+        min_installment: minInstallment,
         max_number: maxInterestFree > 1 ? maxInterestFree : maxInstallments,
         monthly_interest: maxInterestFree > 1 ? 0 : IPInterestMonthly[maxInstallments - 1]
       }
