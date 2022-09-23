@@ -142,12 +142,12 @@ exports.post = async ({ appSdk }, req, res) => {
           msg: '#Erro get transaction'
         })
       }
-      const storeID = parseInt(storeId, 10)
+      storeId = parseInt(storeId, 10)
       console.log('>PIX #s: ', storeId, ' o: ', orderId, ' code: ', transactionReference, ' <')
-      if (storeID > 100 && secret && orderId && transactionReference) {
+      if (storeId > 100 && secret && orderId && transactionReference) {
       // https://www.infinitepay.io/docs#validacao-de-callback-do-pix-pago
         const signature = req.headers['x-callback-signature']
-        const generatedSignature = cryptoJS.HmacSHA256(req.body, secret).toString()
+        const generatedSignature = cryptoJS.HmacSHA256(JSON.stringify(req.body), secret).toString()
         if (generatedSignature === signature) {
           let order
           return getAppData({ appSdk, storeId })
@@ -180,6 +180,7 @@ exports.post = async ({ appSdk }, req, res) => {
               return appSdk.apiRequest(storeId, resource, method, body)
             })
             .then(() => {
+              res.sendStatus(200)
               const transaction = order.transactions.find(({ intermediator }) => {
                 return intermediator && intermediator.transaction_reference === String(transactionReference)
               })
@@ -194,7 +195,14 @@ exports.post = async ({ appSdk }, req, res) => {
               }
               // Update to disable QR Code
               appSdk.apiRequest(storeId, resource, method, body).catch(console.error)
-              res.sendStatus(200)
+
+              const updatedAt = new Date().toISOString()
+              collectionTransactions.doc(pixId)
+                .set({
+                  status: 'paid',
+                  updatedAt
+                }, { merge: true })
+                .catch(console.error)
             })
             .catch(error => {
               const { response, config } = error
@@ -213,15 +221,24 @@ exports.post = async ({ appSdk }, req, res) => {
               })
             })
         } else {
+          console.log('>Signature: ', signature, ' Gerate:', generatedSignature)
           res.send({
             status: 403,
             msg: `#${storeId} InfinitePay callback PIX error, signature invalid `
           })
         }
+      } else {
+        res.send({
+          status: 404,
+          msg: `Transaction error #${pixId}, property not found invalid store`
+        })
       }
-      res.sendStatus(404)
+    } else {
+      res.send({
+        status: 404,
+        msg: `#Transaction ${pixId} not found in Firebase`
+      })
     }
-    res.sendStatus(404)
   }
   res.sendStatus(403)
 }

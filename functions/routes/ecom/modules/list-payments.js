@@ -30,7 +30,7 @@ exports.post = async ({ appSdk }, req, res) => {
     return configError('NO_INFINITE_KEY', 'Chave de API InfinitePay não configurada')
   }
 
-  if (!config.pix.disable && !config.pix.key_pix) {
+  if (config.pix && !config.pix.disable && !config.pix.key_pix) {
     return configError('NO_INFINITE_KEY_PIX', 'Chave PIX InfinitePay não configurada')
   }
 

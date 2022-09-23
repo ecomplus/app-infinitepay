@@ -256,11 +256,12 @@ exports.post = async ({ appSdk, admin }, req, res) => {
 
           console.log('Authorized transaction PIX in InfinitePay #s:', storeId, ' o:', orderId)
           intermediator.transaction_id = transactionId
-          intermediator.transaction_reference = transactionReference
+          intermediator.transaction_reference = `${transactionReference}`
           transaction.status = {
             current: 'pending',
             updated_at: attributes.created_at || new Date().toISOString()
           }
+          const updatedAt = new Date().toISOString()
           const documentRef = require('firebase-admin')
             .firestore()
             .doc(`${firestoreColl}/${transactionId}`)
@@ -268,9 +269,12 @@ exports.post = async ({ appSdk, admin }, req, res) => {
             documentRef.set({
               isSandbox,
               orderId,
+              orderNumber,
               storeId,
               secret,
-              transactionReference
+              transactionReference,
+              status: 'pending',
+              updatedAt
             }).catch(console.error)
           }
         } else {
