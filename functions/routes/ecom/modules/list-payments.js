@@ -30,12 +30,12 @@ exports.post = async ({ appSdk }, req, res) => {
     return configError('NO_INFINITE_KEY', 'Chave de API InfinitePay não configurada')
   }
 
-  if (config.pix && !config.pix.disable && !config.pix.key_pix) {
-    return configError('NO_INFINITE_KEY_PIX', 'Chave PIX InfinitePay não configurada')
+  if (config.pix && config.pix.enable && !config.pix.key_pix) {
+    return configError('NO_INFINITE_KEY_PIX', 'Chave Pix InfinitePay não configurada')
   }
 
   const isSandbox = false // TODO: false
-  console.log('> List Payment #', storeId, `${isSandbox ? 'isSandbox' : ''}`)
+  console.log('> List Payment #', storeId, `${isSandbox ? '-isSandbox' : ''}`)
 
   const tokenJWT = await getToken(config.client_id, config.client_secret,
     isSandbox, storeId, 'card')
@@ -60,9 +60,11 @@ exports.post = async ({ appSdk }, req, res) => {
     const isLinkPayment = paymentMethod === 'payment_link'
 
     const methodConfig = isPix ? 'pix' : (config[paymentMethod] || {})
-    const minAmount = methodConfig.minAmount || 0
+    const minAmount = methodConfig.min_amount || 0
 
-    if (!methodConfig.disable && (amount.total >= minAmount)) {
+    const methodEnable = methodConfig.enable? methodConfig.enable : !methodConfig.disable
+
+    if (methodEnable && (amount.total >= minAmount)) {
       const label = methodConfig.label ? methodConfig.label : (isCreditCard ? 'Cartão de crédito' : (isLinkPayment ? 'Cartão de crédito - Link de Pagamento' : 'Pix'))
 
       const gateway = {
