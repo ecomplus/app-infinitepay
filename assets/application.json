@@ -255,6 +255,55 @@
         "description": "Configurações adicionais para cartão de crédito via checkout transparente"
       },
       "hide": false
+    },
+    "pix": {
+      "schema": {
+        "type": "object",
+        "title": "Pix",
+        "description": "Configurações adicionais para Pix",
+        "additionalProperties": false,
+        "properties": {
+          "enable": {
+            "type": "boolean",
+            "default": false,
+            "title": "Habilitar Pix via InfinitePay"
+          },
+          "key_pix": {
+            "type": "string",
+            "maxLength": 255,
+            "title": "Chave Pix InfinitePay"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 50,
+            "title": "Rótulo",
+            "description": "Nome da forma de pagamento exibido para os clientes",
+            "default": "Pix"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 1000,
+            "title": "Descrição",
+            "description": "Texto auxiliar sobre a forma de pagamento, pode conter tags HTML"
+          },
+          "icon": {
+            "type": "string",
+            "maxLength": 255,
+            "format": "uri",
+            "title": "Ícone",
+            "description": "Ícone customizado para a forma de pagamento, URL da imagem"
+          },
+          "min_amount": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 999999999,
+            "title": "Pedido mínimo",
+            "default": 0,
+            "description": "Montante mínimo para listar meio de pagamento via Pix"
+          }
+        }
+      },
+      "hide": false
     }
   },
   "auth_callback_uri": "https://us-central1-ecom-infinitepay.cloudfunctions.net/app/ecom/auth-callback",
