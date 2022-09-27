@@ -209,6 +209,115 @@ exports.post = async ({ appSdk, admin }, req, res) => {
           })
         }
       })
+  } else if (paymentMethod === 'account_deposit') {
+    const firestoreColl = 'infinitepay_transactions_pix'
+
+    const transactionReference = new Date().getTime()
+    const secret = Buffer.from(`${storeId}-${orderId}-${transactionReference}`).toString('base64')
+    console.log('>> secret: ', (isSandbox ? secret : ''))
+
+    data.amount = Math.floor(finalAmount * 100)
+    data.capture_method = 'pix'
+    data.metadata = {
+      origin: 'ecomplus',
+      payment_method: 'pix',
+      callback: {
+        validate: `${callbackUrl}?pix=denied`,
+        confirm: `${callbackUrl}?pix=confirm`,
+        secret
+      },
+      orderId,
+      storeId,
+      transactionReference
+    }
+
+    infiniteAxios
+      .then((axios) => {
+        console.log('>> SendTransaction PIX Infinite: ', JSON.stringify(data), ' <<')
+        // url: 'https://cloudwalk.github.io/infinitepay-docs/#autorizando-um-pagamento',
+        const headers = {
+          Accept: 'application/json'
+        }
+        return axios.post('/v2/transactions', data, { headers })
+      })
+      .then((response) => {
+        const { data } = response.data
+        const { attributes } = data
+        console.log('>>Response Attributes: ', attributes, ' <<<')
+        const intermediator = {
+          transaction_code: attributes.nsu,
+          payment_method: params.payment_method
+        }
+        const brCode = attributes.br_code
+        const transactionId = attributes.nsu_host
+        if (brCode && transactionId) {
+          const qrCodeSrc = `https://gerarqrcodepix.com.br/api/v1?brcode=${brCode}&tamanho=256`
+          transaction.notes = `<img src="${qrCodeSrc}" style="display:block;margin:0 auto">
+            <lable style="display:block;margin:1 auto"> ${brCode} </lable>`
+
+          console.log('Authorized transaction PIX in InfinitePay #s:', storeId, ' o:', orderId)
+          intermediator.transaction_id = transactionId
+          intermediator.transaction_reference = `${transactionReference}`
+          transaction.status = {
+            current: 'pending',
+            updated_at: attributes.created_at || new Date().toISOString()
+          }
+          const updatedAt = new Date().toISOString()
+          const documentRef = require('firebase-admin')
+            .firestore()
+            .doc(`${firestoreColl}/${transactionId}`)
+          if (documentRef) {
+            documentRef.set({
+              isSandbox,
+              orderId,
+              orderNumber,
+              storeId,
+              secret,
+              transactionReference,
+              status: 'pending',
+              updatedAt
+            }).catch(console.error)
+          }
+        } else {
+          console.log('Unauthorized transaction PIX in InfinitePay #s:', storeId, ' o:', orderId)
+          transaction.status = {
+            current: 'unauthorized',
+            updated_at: attributes.created_at || new Date().toISOString()
+          }
+        }
+        transaction.intermediator = intermediator
+        res.send({
+          redirect_to_payment: false,
+          transaction
+        })
+      })
+      .catch(error => {
+        console.log('Error: ', JSON.stringify(error), ' <<<')
+        let { message } = error
+        // try to debug request error
+        const errCode = 'INFINITEPAY_TRANSACTION_ERR'
+        const err = new Error(`${errCode} #${storeId} - ${orderId} => ${message}`)
+        if (error.response) {
+          const { status, data } = error.response
+          if (status !== 401 && status !== 403) {
+            err.payment = JSON.stringify(transaction)
+            err.status = status
+            if (typeof data === 'object' && data) {
+              err.response = JSON.stringify(data)
+            } else {
+              err.response = data
+            }
+          } else if (data && Array.isArray(data.errors) && data.errors[0] && data.errors[0].message) {
+            message = data.errors[0].message
+          }
+        }
+        console.error(err)
+        res.status(409)
+        res.send({
+          error: errCode,
+          message
+        })
+      })
   } else {
     res.send({
       redirect_to_payment: params.payment_method.code === 'balance_on_intermediary',
