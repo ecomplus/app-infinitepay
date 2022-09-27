@@ -357,20 +357,18 @@ const app = {
       schema: {
         type: 'object',
         title: 'Pix',
-        description: 'Configurações adicionais para Pix.',
+        description: 'Configurações adicionais para Pix',
         additionalProperties: false,
         properties: {
           enable: {
             type: 'boolean',
             default: false,
-            title: 'Habilitar PIX',
-            description: 'Habilitar pagamento com PIX via InfinitePay'
+            title: 'Habilitar Pix via InfinitePay'
           },
           key_pix: {
             type: 'string',
             maxLength: 255,
-            title: 'Chave Pix InfinitePay',
-            description: 'Sua chave Pix da InfinitePay'
+            title: 'Chave Pix InfinitePay'
           },
           label: {
             type: 'string',
