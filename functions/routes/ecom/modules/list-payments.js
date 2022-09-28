@@ -100,7 +100,7 @@ exports.post = async ({ appSdk }, req, res) => {
         }
       }
 
-      if (discount && discount.value > 0 && (!amount.discount || discount.cumulative_discount !== false)) {
+      if (isPix && discount && discount.value > 0 && (!amount.discount || discount.cumulative_discount !== false)) {
         gateway.discount = {
           apply_at: discount.apply_at,
           type: discount.type,
