@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.1.0](https://github.com/ecomplus/application-starter/compare/v2.0.0...v2.1.0) (2022-09-30)
+
+
+### Features
+
+* **pix:** add PIX payment method ([#88](https://github.com/ecomplus/application-starter/issues/88)) ([1b8d74b](https://github.com/ecomplus/application-starter/commit/1b8d74b7cc5743821ebbb7d18c62893c7d90fd8d))
+
+
+### Bug Fixes
+
+* **add-installments:** validate qty of the installments according to the min_installment value [#89](https://github.com/ecomplus/application-starter/issues/89) ([630086e](https://github.com/ecomplus/application-starter/commit/630086e7f4063f8bf8ebcf0ff81268a6db40e739))
+* **list-payments:** applying discount for Pix option only [[#84](https://github.com/ecomplus/application-starter/issues/84)] ([fd26bae](https://github.com/ecomplus/application-starter/commit/fd26baee6e291a6a4a63144b22d7d7edba328e80)), closes [/github.com/ecomplus/app-infinitepay/issues/84#issuecomment-1260979829](https://github.com/ecomplus//github.com/ecomplus/app-infinitepay/issues/84/issues/issuecomment-1260979829)
+* **list-payments:** use hosting uri for default gateway icons ([5670ffa](https://github.com/ecomplus/application-starter/commit/5670ffaaecac55c6cb3637d8d47610a50864482c))
+* **onload-expression:** update variable name access_token ([c08e727](https://github.com/ecomplus/application-starter/commit/c08e7270724e6b57ad2723ef1a3ca232070fb8ca))
+
 ## [2.0.0](https://github.com/ecomplus/application-starter/compare/v1.0.1...v2.0.0) (2022-07-29)
 
 
