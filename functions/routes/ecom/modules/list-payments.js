@@ -62,9 +62,10 @@ exports.post = async ({ appSdk }, req, res) => {
     const methodConfig = isPix ? 'pix' : (config[paymentMethod] || {})
     const minAmount = methodConfig.min_amount || 0
 
-    const methodEnable = methodConfig.enable? methodConfig.enable : !methodConfig.disable
+    const methodEnable = methodConfig.enable ? methodConfig.enable : !methodConfig.disable
+    const validateAmount = amount.total ? (amount.total >= minAmount) : true // Workaround for showcase
 
-    if (methodEnable && (amount.total >= minAmount)) {
+    if (methodEnable && validateAmount) {
       const label = methodConfig.label ? methodConfig.label : (isCreditCard ? 'Cartão de crédito' : (isLinkPayment ? 'Cartão de crédito - Link de Pagamento' : 'Pix'))
 
       const gateway = {
@@ -82,6 +83,10 @@ exports.post = async ({ appSdk }, req, res) => {
       if (installments && (isCreditCard || isLinkPayment)) {
         // list all installment options and default one
         addInstallments(amount, installments, gateway, response)
+      }
+
+      if (isPix && !gateway.icon) {
+        gateway.icon = 'https://us-central1-ecom-pix.cloudfunctions.net/app/pix.png'
       }
 
       if (isCreditCard) {
