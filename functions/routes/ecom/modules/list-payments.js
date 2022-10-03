@@ -59,7 +59,7 @@ exports.post = async ({ appSdk }, req, res) => {
     const isCreditCard = paymentMethod === 'credit_card'
     const isLinkPayment = paymentMethod === 'payment_link'
 
-    const methodConfig = isPix ? 'pix' : (config[paymentMethod] || {})
+    const methodConfig = isPix ? config.pix : (config[paymentMethod] || {})
     const minAmount = methodConfig.min_amount || 0
 
     const methodEnable = methodConfig.enable ? methodConfig.enable : !methodConfig.disable
@@ -115,7 +115,7 @@ exports.post = async ({ appSdk }, req, res) => {
           // set as default discount option
           response.discount_option = {
             ...gateway.discount,
-            label: config.discount_option_label || 'InfinitePay'
+            label: config.discount_option_label || `${label}`
           }
         }
 
