@@ -188,13 +188,10 @@ exports.post = async ({ appSdk }, req, res) => {
               notes = notes.replaceAll('display:block', 'display:none') // disable QR Code
               notes = `${notes} # PIX Aprovado`
               transaction.notes = notes
-              const resource = `orders/${order._id}.json`
+              const resource = `orders/${order._id}/transactions/${transaction._id}.json`
               const method = 'PATCH'
-              const body = {
-                transactions: order.transactions
-              }
               // Update to disable QR Code
-              appSdk.apiRequest(storeId, resource, method, body).catch(console.error)
+              appSdk.apiRequest(storeId, resource, method, { notes }).catch(console.error)
 
               const updatedAt = new Date().toISOString()
               collectionTransactions.doc(pixId)
