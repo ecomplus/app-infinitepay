@@ -62,7 +62,7 @@ exports.post = async ({ appSdk }, req, res) => {
     const methodConfig = isPix ? config.pix : (config[paymentMethod] || {})
     const minAmount = methodConfig.min_amount || 0
 
-    const methodEnable = methodConfig.enable ? methodConfig.enable : !methodConfig.disable
+    const methodEnable = isPix ? methodConfig.enable : !methodConfig.disable
     const validateAmount = amount.total ? (amount.total >= minAmount) : true // Workaround for showcase
 
     if (methodEnable && validateAmount) {
