@@ -252,8 +252,12 @@ exports.post = async ({ appSdk, admin }, req, res) => {
         const transactionId = attributes.nsu_host
         if (brCode && transactionId) {
           const qrCodeSrc = `https://gerarqrcodepix.com.br/api/v1?brcode=${brCode}&tamanho=256`
-          transaction.notes = `<img src="${qrCodeSrc}" style="display:block;margin:0 auto">
-            <lable style="display:block;margin:1 auto"> ${brCode} </lable>`
+          transaction.notes = '<div style="display:block;margin:0 auto"> ' +
+          `<img src="${qrCodeSrc}" style="display:block;margin:0 auto"> ` +
+          `<input readonly type="text" id="pix-copy" value="${brCode}" />` +
+          `<button type="button" class="btn btn-sm btn-light" onclick="let codePix = document.getElementById('pix-copy')
+          codePix.select()
+          document.execCommand('copy')">Copiar Pix</button></div>`
 
           console.log('Authorized transaction PIX in InfinitePay #s:', storeId, ' o:', orderId)
           intermediator.transaction_id = transactionId
