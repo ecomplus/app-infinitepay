@@ -6,12 +6,15 @@ module.exports = (amount, installments = {}, gateway = {}, response) => {
   const qtyPosssibleInstallment = Math.floor((amount.total / minInstallment))
   const maxInstallments = installments.max_number || (qtyPosssibleInstallment < 12 ? qtyPosssibleInstallment : 12)
 
+  const monthlyInterest = installments.monthly_interest || 0
+  const IPInterestMonthlyDefault = IPInterestMonthly[maxInstallments - 1]
+
   if (maxInstallments > 1) {
     if (response) {
       response.installments_option = {
         min_installment: minInstallment,
         max_number: maxInterestFree > 1 ? maxInterestFree : maxInstallments,
-        monthly_interest: maxInterestFree > 1 ? 0 : IPInterestMonthly[maxInstallments - 1]
+        monthly_interest: maxInterestFree > 1 ? 0 : (monthlyInterest > IPInterestMonthlyDefault ? monthlyInterest : IPInterestMonthlyDefault)
       }
     }
 
@@ -21,7 +24,8 @@ module.exports = (amount, installments = {}, gateway = {}, response) => {
       const tax = !(maxInterestFree >= number)
       let interest
       if (tax) {
-        interest = IPInterestMonthly[number - 1] / 100
+        const IPMonthInterestRate = IPInterestMonthly[number - 1]
+        interest = (monthlyInterest > IPMonthInterestRate ? monthlyInterest : IPMonthInterestRate) / 100
       }
       const value = !tax ? amount.total / number : amount.total * (interest / (1 - Math.pow(1 + interest, -number)))
       if (value && value >= 1) {
