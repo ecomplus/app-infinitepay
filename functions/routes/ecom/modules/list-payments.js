@@ -26,9 +26,12 @@ exports.post = async ({ appSdk }, req, res) => {
   if ((!config.client_id || !config.client_secret)) {
     return configError('NO_INFINITE_KEY', 'Client ID/Client Secrect InfinitePay não configurado')
   }
-  if (!config.infinitepay_api_key && !disableLinkPayment) {
-    return configError('NO_INFINITE_KEY', 'Chave de API InfinitePay não configurada')
-  }
+
+  // TODO: Disable link Payment, see payment link documentation with JWT
+
+  // if (!config.infinitepay_api_key && !disableLinkPayment) {
+  //   return configError('NO_INFINITE_KEY', 'Chave de API InfinitePay não configurada')
+  // }
 
   if (config.pix && config.pix.enable && !config.pix.key_pix) {
     return configError('NO_INFINITE_KEY_PIX', 'Chave Pix InfinitePay não configurada')
@@ -62,7 +65,11 @@ exports.post = async ({ appSdk }, req, res) => {
     const methodConfig = isPix ? config.pix : (config[paymentMethod] || {})
     const minAmount = methodConfig.min_amount || 0
 
-    const methodEnable = isPix ? methodConfig.enable : !methodConfig.disable
+    // Disable Link Payment
+    // const methodEnable = isPix ? methodConfig.enable : !methodConfig.disable
+    // TODO: See payment link documentation with JWT
+    const methodEnable = isPix ? methodConfig.enable : (isLinkPayment ? false : !methodConfig.disable)
+
     const validateAmount = amount.total ? (amount.total >= minAmount) : true // Workaround for showcase
 
     if (methodEnable && validateAmount) {
