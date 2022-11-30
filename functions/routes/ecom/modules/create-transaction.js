@@ -144,7 +144,7 @@ exports.post = async ({ appSdk, admin }, req, res) => {
           transaction_id: attributes.nsu,
           payment_method: params.payment_method
         }
-        if (attributes.authorization_id) {
+        if (attributes.authorization_id && attributes.authorization_id !== '000000') {
           console.log('Authorized transaction in InfinitePay #s:', storeId, ' o:', orderId)
           intermediator.transaction_code = attributes.authorization_id
           transaction.status = {
