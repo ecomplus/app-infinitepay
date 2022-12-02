@@ -141,18 +141,21 @@ exports.post = async ({ appSdk, admin }, req, res) => {
         const { attributes } = data
         console.log('>>Response Attributes: ', attributes, ' <<<')
         const intermediator = {
-          transaction_id: attributes.nsu,
+          transaction_code: attributes.nsu,
+          transaction_reference: attributes.authorization_code,
           payment_method: params.payment_method
         }
-        if (attributes.authorization_id && attributes.authorization_id !== '000000') {
+        if (attributes.authorization_id && attributes.authorization_code && attributes.authorization_code === '00') {
           console.log('Authorized transaction in InfinitePay #s:', storeId, ' o:', orderId)
-          intermediator.transaction_code = attributes.authorization_id
+          intermediator.transaction_id = attributes.authorization_id
           transaction.status = {
             current: 'paid',
             updated_at: attributes.created_at || new Date().toISOString()
           }
         } else {
-          console.log('Unauthorized transaction in InfinitePay #s:', storeId, ' o:', orderId)
+          console.log(`Unauthorized transaction in InfinitePay code: 
+          ${attributes.authorization_code} #s: ${storeId} o: ${orderId}`)
+
           transaction.status = {
             current: 'unauthorized',
             updated_at: attributes.created_at || new Date().toISOString()
@@ -253,9 +256,9 @@ exports.post = async ({ appSdk, admin }, req, res) => {
         if (brCode && transactionId) {
           const qrCodeSrc = `https://gerarqrcodepix.com.br/api/v1?brcode=${brCode}&tamanho=256`
           transaction.notes = '<div style="display:block;margin:0 auto"> ' +
-          `<img src="${qrCodeSrc}" style="display:block;margin:0 auto"> ` +
-          `<input readonly type="text" id="pix-copy" value="${brCode}" />` +
-          `<button type="button" class="btn btn-sm btn-light" onclick="let codePix = document.getElementById('pix-copy')
+            `<img src="${qrCodeSrc}" style="display:block;margin:0 auto"> ` +
+            `<input readonly type="text" id="pix-copy" value="${brCode}" />` +
+            `<button type="button" class="btn btn-sm btn-light" onclick="let codePix = document.getElementById('pix-copy')
           codePix.select()
           document.execCommand('copy')">Copiar Pix</button></div>`
 
