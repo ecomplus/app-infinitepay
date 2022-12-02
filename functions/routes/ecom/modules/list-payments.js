@@ -65,10 +65,9 @@ exports.post = async ({ appSdk }, req, res) => {
     const methodConfig = isPix ? config.pix : (config[paymentMethod] || {})
     const minAmount = methodConfig.min_amount || 0
 
-    // Disable Link Payment
-    // const methodEnable = isPix ? methodConfig.enable : !methodConfig.disable
+    const methodEnable = isPix ? methodConfig.enable : !methodConfig.disable
     // TODO: See payment link documentation with JWT
-    const methodEnable = isPix ? methodConfig.enable : (isLinkPayment ? false : !methodConfig.disable)
+    // const methodEnable = isPix ? methodConfig.enable : (isLinkPayment ? false : !methodConfig.disable)
 
     const validateAmount = amount.total ? (amount.total >= minAmount) : true // Workaround for showcase
 
