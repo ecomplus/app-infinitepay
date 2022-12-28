@@ -254,7 +254,17 @@ exports.post = async ({ appSdk, admin }, req, res) => {
         const brCode = attributes.br_code
         const transactionId = attributes.nsu_host
         if (brCode && transactionId) {
-          const qrCodeSrc = `https://gerarqrcodepix.com.br/api/v1?brcode=${brCode}&tamanho=256`
+          const pixKey = config.pix.key_pix
+
+          const pixCodeHost = 'https://gerarqrcodepix.com.br/api/v1'
+
+          const pixCodeParams = `nome=${encodeURIComponent(params.domain.split('.')[1])}
+          &cidade=${encodeURIComponent(to.city || params.domain)}
+          &txid=${transactionId}&chave=${pixKey}&valor=${parseFloat(finalAmount.toFixed(2))}`
+
+          const qrCodeSrc = `${pixCodeHost}?saida=qr&${pixCodeParams}`
+
+          // const qrCodeSrc = `https://gerarqrcodepix.com.br/api/v1?brcode=${brCode}&tamanho=256`
           transaction.notes = '<div style="display:block;margin:0 auto"> ' +
             `<img src="${qrCodeSrc}" style="display:block;margin:0 auto"> ` +
             `<input readonly type="text" id="pix-copy" value="${brCode}" />` +
