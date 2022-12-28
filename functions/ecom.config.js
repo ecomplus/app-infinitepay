@@ -160,7 +160,7 @@ const app = {
         type: 'string',
         maxLength: 255,
         title: 'Client ID ',
-        description: 'Seu Client ID de acesso a API do Infinitepay, solicitação via e-mail: dev@infinitepay.io',
+        description: 'Acesse app.infinitepay.io, clicando em cadastrar no produto e-commerce paga gerar o client id',
       },
       hide: true
     },
@@ -169,7 +169,7 @@ const app = {
         type: 'string',
         maxLength: 255,
         title: 'Client Secret',
-        description: 'Seu Client Secret de acesso a API do Infinitepay, solicitação via e-mail: dev@infinitepay.io',
+        description: 'Acesse app.infinitepay.io, clicando em cadastrar no produto e-commerce paga gerar o client secret',
       },
       hide: true
     },
