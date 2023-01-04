@@ -28,6 +28,15 @@ const getTransactionPix = (collectionTransactions, transactionId) => {
   })
 }
 
+exports.get = async ({ appSdk }, req, res) => {
+  const hasPix = req.query && req.query.pix
+  if (hasPix) {
+    res.status(200).send('OK')
+  } else {
+    res.sendStatus(403)
+  }
+}
+
 exports.post = async ({ appSdk }, req, res) => {
   // https://gist.github.com/luisbebop/ca87e04da04bcf662f732b1b6848d6ca#integration-
   const transactionId = req.body && req.body.transaction_id
