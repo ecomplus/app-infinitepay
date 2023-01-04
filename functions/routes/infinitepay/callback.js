@@ -39,7 +39,7 @@ exports.post = async ({ appSdk }, req, res) => {
   const callbackHeader = req.headers ? JSON.stringify(req.headers) : ''
   console.log('>Headers ', callbackHeader, ' <')
 
-  console.log(`>> Callback Infinite: ${hasPix ? 'pix' : 'PaymentLink'} <`)
+  console.log(`>> Callback Infinite: ${hasPix ? `pix(${hasPix})` : 'PaymentLink'} <`)
 
   if (transactionId && !hasPix) {
     const { metadata } = req.body
@@ -145,7 +145,7 @@ exports.post = async ({ appSdk }, req, res) => {
       storeId = parseInt(storeId, 10)
       console.log('>PIX #s: ', storeId, ' o: ', orderId, ' code: ', transactionReference, ' <')
       if (storeId > 100 && secret && orderId && transactionReference) {
-      // https://www.infinitepay.io/docs#validacao-de-callback-do-pix-pago
+        // https://www.infinitepay.io/docs#validacao-de-callback-do-pix-pago
         const signature = req.headers['x-callback-signature']
         const generatedSignature = cryptoJS.HmacSHA256(JSON.stringify(req.body), secret).toString()
         if (generatedSignature === signature) {

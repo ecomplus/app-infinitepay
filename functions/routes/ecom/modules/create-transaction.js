@@ -224,9 +224,10 @@ exports.post = async ({ appSdk, admin }, req, res) => {
     data.metadata = {
       origin: 'ecomplus',
       payment_method: 'pix',
+      order_id: orderId,
       callback: {
-        validate: `${callbackUrl}?pix=denied`,
-        confirm: `${callbackUrl}?pix=confirm`,
+        validate: `${callbackUrl}?pix=denied&order_id=${orderId}`,
+        confirm: `${callbackUrl}?pix=confirm&order_id=${orderId}`,
         secret
       },
       orderId,
