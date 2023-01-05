@@ -29,12 +29,7 @@ const getTransactionPix = (collectionTransactions, transactionId) => {
 }
 
 exports.get = async ({ appSdk }, req, res) => {
-  const hasPix = req.query && req.query.pix
-  if (hasPix) {
-    res.status(200).send('OK')
-  } else {
-    res.sendStatus(403)
-  }
+  res.status(200).send('OK')
 }
 
 exports.post = async ({ appSdk }, req, res) => {
@@ -245,6 +240,8 @@ exports.post = async ({ appSdk }, req, res) => {
         msg: `#Transaction ${pixId} not found in Firebase`
       })
     }
+  } else {
+    res.status(200).send('OK')
   }
   res.sendStatus(403)
 }
