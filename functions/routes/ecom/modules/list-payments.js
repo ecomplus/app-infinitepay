@@ -63,7 +63,7 @@ exports.post = async ({ appSdk }, req, res) => {
     const isLinkPayment = paymentMethod === 'payment_link'
 
     const methodConfig = isPix ? config.pix : (config[paymentMethod] || {})
-    const minAmount = methodConfig.min_amount || 0
+    const minAmount = methodConfig?.min_amount || 0
 
     const methodEnable = isPix ? methodConfig.enable : !methodConfig.disable
     // TODO: See payment link documentation with JWT

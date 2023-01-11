@@ -28,22 +28,6 @@ exports.post = async ({ appSdk, admin }, req, res) => {
   }
   const callbackUrl = `${baseUri}/infinitepay/callback`
 
-  const transactionLink = {
-    payment_link: `https://pay.infinitepay.io/${config.infinitepay_user}/` +
-      amount.total.toFixed(2).replace('.', ',') +
-      `?metadata=${storeId}::${orderId}`,
-    intermediator: {
-      payment_method: params.payment_method,
-      transaction_reference: `@${config.infinitepay_user}`
-    },
-    currency_id: params.currency_id,
-    currency_symbol: params.currency_symbol,
-    amount: amount.total,
-    status: {
-      current: 'pending'
-    }
-  }
-
   let finalAmount = Math.floor(amount.total * 100) / 100
   let data = {}
   const paymentMethod = params.payment_method.code
@@ -337,6 +321,22 @@ exports.post = async ({ appSdk, admin }, req, res) => {
         })
       })
   } else {
+    const transactionLink = {
+      payment_link: `https://pay.infinitepay.io/${config.infinitepay_user}/` +
+        amount.total.toFixed(2).replace('.', ',') +
+        `?metadata=${storeId}::${orderId}`,
+      intermediator: {
+        payment_method: params.payment_method,
+        transaction_reference: `@${config.infinitepay_user}`
+      },
+      currency_id: params.currency_id,
+      currency_symbol: params.currency_symbol,
+      amount: amount.total,
+      status: {
+        current: 'pending'
+      }
+    }
+
     res.send({
       redirect_to_payment: params.payment_method.code === 'balance_on_intermediary',
       transaction: transactionLink

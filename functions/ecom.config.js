@@ -34,13 +34,13 @@ const app = {
      * Triggered when listing payments, must return available payment methods.
      * Start editing `routes/ecom/modules/list-payments.js`
      */
-    list_payments:        { enabled: true },
+    list_payments: { enabled: true },
 
     /**
      * Triggered when order is being closed, must create payment transaction and return info.
      * Start editing `routes/ecom/modules/create-transaction.js`
      */
-    create_transaction:   { enabled: true },
+    create_transaction: { enabled: true },
   },
 
   /**
@@ -147,16 +147,8 @@ const app = {
       },
       hide: false
     },
-    infinitepay_api_key: {
-      schema: {
-        type: 'string',
-        maxLength: 255,
-        title: 'Chave de API InfinitePay'
-      },
-      hide: true
-    },
     client_id: {
-      schema:{
+      schema: {
         type: 'string',
         maxLength: 255,
         title: 'Client ID ',
@@ -165,7 +157,7 @@ const app = {
       hide: true
     },
     client_secret: {
-      schema:{
+      schema: {
         type: 'string',
         maxLength: 255,
         title: 'Client Secret',
