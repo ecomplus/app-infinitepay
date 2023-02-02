@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0](https://github.com/ecomplus/application-starter/compare/v1.0.1...v2.2.0) (2023-02-02)
+
+
+### Features
+
+* **Checkout:** create transparent checkout ([c812b3e](https://github.com/ecomplus/application-starter/commit/c812b3e9ec660f756b7befe5bf8551fda6cc78a9))
+* **pix:** add PIX payment method ([#88](https://github.com/ecomplus/application-starter/issues/88)) ([1b8d74b](https://github.com/ecomplus/application-starter/commit/1b8d74b7cc5743821ebbb7d18c62893c7d90fd8d))
+
+
+### Bug Fixes
+
+* **add-installments:** check the interest rate and use the highest rate ([6335d7a](https://github.com/ecomplus/application-starter/commit/6335d7a0f643670c1b1e41f3afbf48201135a2d2))
+* **add-installments:** validate qty of the installments according to the min_installment value [#89](https://github.com/ecomplus/application-starter/issues/89) ([630086e](https://github.com/ecomplus/application-starter/commit/630086e7f4063f8bf8ebcf0ff81268a6db40e739))
+* **add-method:** accept GET request when pix ([850f87f](https://github.com/ecomplus/application-starter/commit/850f87f9118652bfaca030558f98861832007783))
+* **callback:** reply 200 to method post to pix denied ([8ed570e](https://github.com/ecomplus/application-starter/commit/8ed570ec6ff4ef23f11841b2dd41d6ce407a6c08))
+* **callback:** update only on transaction ([#90](https://github.com/ecomplus/application-starter/issues/90)) [skip ci] ([b0ff91c](https://github.com/ecomplus/application-starter/commit/b0ff91c3382936c677a4bd779dd37a8889941103))
+* **create-transaction:** added authorization_code in approved transaction validation ([da5e2cf](https://github.com/ecomplus/application-starter/commit/da5e2cf156b9fb19ea9c7b076931ac2e460dd7aa))
+* **create-transaction:** do not authorize transaction with authorization_id equal to 000000 ([917258f](https://github.com/ecomplus/application-starter/commit/917258f04140b32b11612f59514cfb8be104dc03))
+* **deps:** remove @google-cloud/firestore from direct function dependencies ([b3b5584](https://github.com/ecomplus/application-starter/commit/b3b55849edfe3125ca09dcfa76eb4f8bd0685250))
+* **deps:** update all non-major dependencies ([#22](https://github.com/ecomplus/application-starter/issues/22)) ([2d3e010](https://github.com/ecomplus/application-starter/commit/2d3e010adea023321bd4ed73f2acb5cd5e6d3679))
+* **deps:** update all non-major dependencies ([#4](https://github.com/ecomplus/application-starter/issues/4)) ([dcb37d5](https://github.com/ecomplus/application-starter/commit/dcb37d5df670926e286c978abad23c8ada826c73))
+* **deps:** update all non-major dependencies ([#78](https://github.com/ecomplus/application-starter/issues/78)) [skip ci] ([3c3ffd1](https://github.com/ecomplus/application-starter/commit/3c3ffd10ddeb74ac50ff58b7113528a11afb5f64))
+* **deps:** update dependency @google-cloud/firestore to ^4.12.2 ([#20](https://github.com/ecomplus/application-starter/issues/20)) ([f9e08d6](https://github.com/ecomplus/application-starter/commit/f9e08d668ecbe6fa66fec3486ed181eaa33221bd))
+* **ecom-config:** remove api key from app config ([747a4fa](https://github.com/ecomplus/application-starter/commit/747a4fa25851004eb99291d1050c005d7fdb5a14))
+* **list-payments:** applying discount for Pix option only [[#84](https://github.com/ecomplus/application-starter/issues/84)] ([fd26bae](https://github.com/ecomplus/application-starter/commit/fd26baee6e291a6a4a63144b22d7d7edba328e80)), closes [/github.com/ecomplus/app-infinitepay/issues/84#issuecomment-1260979829](https://github.com/ecomplus//github.com/ecomplus/app-infinitepay/issues/84/issues/issuecomment-1260979829)
+* **list-payments:** disable the api key ([2cd6c98](https://github.com/ecomplus/application-starter/commit/2cd6c988ad2eb7591a8e7270644fdb0c614f6839))
+* **list-payments:** display payment in showcase ([42b5f87](https://github.com/ecomplus/application-starter/commit/42b5f87fbe0afae11849a977c42d13553f045f16))
+* **list-payments:** enable link payments ([98315cd](https://github.com/ecomplus/application-starter/commit/98315cdab4d79a790c9999b2b6351ecc4d52f0a6))
+* **list-payments:** use hosting uri for default gateway icons ([5670ffa](https://github.com/ecomplus/application-starter/commit/5670ffaaecac55c6cb3637d8d47610a50864482c))
+* **onload-expression:** update variable name access_token ([c08e727](https://github.com/ecomplus/application-starter/commit/c08e7270724e6b57ad2723ef1a3ca232070fb8ca))
+* **pix:** fix generate qr Code for pix ([94587cd](https://github.com/ecomplus/application-starter/commit/94587cd7a2ec671d02b3e0f17bd924d1a658bcf4))
+* **validate-pix:** update url validate pix ([8ad45c3](https://github.com/ecomplus/application-starter/commit/8ad45c340cee99a721fce4d7fe4dda4de9df73af))
+
 ## [2.1.0](https://github.com/ecomplus/application-starter/compare/v2.0.0...v2.1.0) (2022-09-30)
 
 
