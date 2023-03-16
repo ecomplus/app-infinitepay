@@ -27,7 +27,7 @@ module.exports = (amount, installments = {}, gateway = {}, response) => {
         const IPMonthInterestRate = IPInterestMonthly[number - 1]
         interest = (monthlyInterest > IPMonthInterestRate ? monthlyInterest : IPMonthInterestRate) / 100
       }
-      const value = !tax ? amount.total / number : amount.total * (interest / (1 - Math.pow(1 + interest, -number)))
+      const value = !tax ? (amount.total / number) : amount.total * (interest / (1 - Math.pow(1 + interest, -number)))
       if (value && value >= 1) {
         gateway.installment_options.push({
           number,
