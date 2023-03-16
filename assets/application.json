@@ -50,14 +50,6 @@
       },
       "hide": false
     },
-    "infinitepay_api_key": {
-      "schema": {
-        "type": "string",
-        "maxLength": 255,
-        "title": "Chave de API InfinitePay"
-      },
-      "hide": true
-    },
     "client_id": {
       "schema": {
         "type": "string",
@@ -307,5 +299,5 @@
     }
   },
   "auth_callback_uri": "https://us-central1-ecom-infinitepay.cloudfunctions.net/app/ecom/auth-callback",
-  "version": "2.1.0"
+  "version": "2.2.0"
 }
