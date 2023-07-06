@@ -1,4 +1,4 @@
- (function () {
+(function () {
   window._infiniteHashCard = function (cardClient) {
     return new Promise((resolve, reject) => {
       const elementsForm = `
@@ -33,7 +33,8 @@
             card_holder_name: cardClient.name
           }
           const metadata = {
-            origin: 'ecomplus',
+            platform: 'ecomplus',
+            // origin: 'ecomplus',
             store_url: window.location.hostname,
             risk: {
               session_id: sessionId
