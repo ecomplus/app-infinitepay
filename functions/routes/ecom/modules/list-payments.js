@@ -84,6 +84,7 @@ exports.post = async ({ appSdk }, req, res) => {
         },
         intermediator
       }
+      console.log('get gateway', JSON.stringify(gateway))
 
       const { installments, discount } = config
       if (installments && (isCreditCard || isLinkPayment)) {
@@ -135,6 +136,7 @@ exports.post = async ({ appSdk }, req, res) => {
           }
         }
       }
+      console.log('get label', JSON.stringify(gateway))
       response.payment_gateways.push(gateway)
     }
   })
