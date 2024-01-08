@@ -20,12 +20,12 @@ exports.post = async ({ appSdk }, req, res) => {
   const config = Object.assign({}, application.data, application.hidden_data)
   const disableLinkPayment = config.payment_link ? config.payment_link.disable : false
 
-  if (!config.infinitepay_user && !disableLinkPayment) {
+  /* if (!config.infinitepay_user && !disableLinkPayment) {
     return configError('NO_INFINITE_USER', 'Username da InfinitePay não configurado')
   }
   if ((!config.client_id || !config.client_secret)) {
     return configError('NO_INFINITE_KEY', 'Client ID/Client Secrect InfinitePay não configurado')
-  }
+  } */
 
   // TODO: Disable link Payment, see payment link documentation with JWT
 
